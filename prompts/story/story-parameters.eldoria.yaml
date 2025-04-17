@@ -1,0 +1,45 @@
+backstory: |
+  In the blink of an eye, your world shifted. A blinding light enveloped you, and when your vision cleared, you found yourself in Eldoria, a land where magic pulses through the very air. Here, adventurers forge their legacies, guilds command respect, and dungeons brim with untold riches and perilous monsters. As a newcomer, you must navigate this fantastical world, harnessing its arcane energies and striving to ascend the ranks of adventurers.
+
+novelInstructions: |
+  In Eldoria, every being has a status bar displaying their level and skills. As an adventurer, you start at E-class and must battle monsters and explore dungeons to gain experience and level up. Your class can be a tank, mage, spearman, summoner, magical swordsman, swordsman, archer, assassin, or necromancer, each with unique abilities. Some may even combine classes, like a necromancer with mage skills or a summoner with mage skills. Cheatskills are rare and powerful abilities awarded to those who prove themselves worthy. Your journey will take you across diverse landscapes, from the elven forests to the dwarven mountains, facing dragons, demons, demihumans, and demigods. Forge alliances, uncover ancient artifacts, and become a legend.
+
+authorStyle: A writer of optimistic, adventure-focused fantasy in the style of T.H. White and Terry Brooks
+
+firstInput: |
+  Stand in the bustling central square of Arcadia, the capital of Eldoria, taking in the sights and sounds of a world teeming with magic and mystery.
+
+narrativeInstructions: |
+  Briefly describe the immediate results of my action, without any preamble or reminding me of who my character is. Describe any dialogue in full. Describe the physical appearance of any newly introduced characters in detail. Remember that things may go well - or very badly - for my character. Please write your description over several paragraphs.
+
+entities: 
+  - id: player
+    name: Aeliana the Enchantress
+    type: character
+    appearance: young human female,fair skin, blue eyes, long blonde hair
+    clothes: blue mage robes robes with gold embroidery
+    pose_prompt: |
+       lying on the bed, view from above
+    info: |
+      A human mage with an innate talent for elemental magic. She hails from the prestigious Arcane Academy and seeks to expand her knowledge and power.
+    state: Just woke up
+
+importantEntities:
+  - player
+
+imageInstructions: |
+  Prompts must be set of tags, not coherent sentences. Tags must consist of 1-2 words, write them as simple as possible.
+  For characters: ALWAYS start appearence_prompt with '1boy,' or '1girl,' tag.
+  DO NOT specify age or race in prompts. Use 'male/female' tag
+  instead. NO AGE.
+  For clothes: Describe only clearly visible items. Do not mention items hidden under clothes. Describe in very simple and basic terms - image generator has very limited understanding of magic accessories.
+  For scene setting: Keep it short, 2-3 tags, like "inn room, bright lighting, yellow walls".
+
+imageParameters:
+  model: "NoobAI-XL-Vpred-v1.0.safetensors"
+  characterStartPrompt: "myht,ebifurya,sunhyun, very awa, "
+  characterEndPrompt: ", solo, ((masterpiece, best quality, recent, newest, absurdres, highres))"
+  characterNegativePrompt: "nsfw, worst quality, worst aesthetic, bad quality, normal quality, average quality, oldest, old, early, very displeasing, displeasing"
+  itemsStartPrompt: "artist:, very awa, no characters,"
+  itemsEndPrompt: ",((masterpiece, best quality, recent, newest, absurdres, highres))"
+  itemsNegativePrompt: "1boy, 1girl, solo, worst quality, worst aesthetic, bad quality, normal quality, average quality, oldest, old, early, very displeasing, displeasing"

@@ -1,0 +1,346 @@
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.center-content {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  margin: 0 1rem;
+  max-height: 100%;
+  overflow: hidden;
+  max-width: none;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px) brightness(0.5);
+  z-index: 1;
+}
+
+.player-image-container,
+.illustration-image-container {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  padding: 0.5rem;
+  min-width: 100px;
+}
+
+.player-image-wrapper,
+.illustration-image-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.player-image,
+.illustration-image {
+  aspect-ratio: 1/1;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.image-refresh-button {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(30, 30, 40, 0.6);
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  z-index: 3;
+  margin: 0;
+}
+
+.image-refresh-button:hover {
+  background-color: rgba(50, 50, 70, 0.8);
+}
+
+.image-refresh-button:active {
+  transform: scale(0.95);
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.message-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  border: 1px solid rgba(204, 204, 204, 0.5);
+  padding: 10px;
+  border-radius: 4px;
+  max-height: calc(100vh - 250px);
+  text-align: left;
+  background-color: rgba(25, 25, 35, 0.8);
+  backdrop-filter: blur(4px);
+  color: #f0f0f0;
+}
+
+.message-container a {
+  color: #61dafb;
+}
+
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 250px;
+}
+
+.navigation-buttons button,
+.navigation-buttons span {
+  flex: 1;
+  text-align: center;
+}
+
+.textarea {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: rgba(15, 15, 25, 0.8);
+  color: #f0f0f0;
+  resize: vertical;
+  min-height: 40px;
+  max-height: 150px;
+}
+
+button {
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  margin-top: 4px;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+/* Feedback buttons styles */
+.feedback-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.feedback-button {
+  background-color: rgba(30, 30, 40, 0.6);
+  border: 1px solid rgba(80, 80, 100, 0.5);
+  border-radius: 4px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.feedback-button:hover {
+  background-color: rgba(50, 50, 70, 0.8);
+}
+
+.feedback-button-like {
+  color: #4CAF50;
+}
+
+.feedback-button-dislike {
+  color: #F44336;
+}
+
+/* Feedback popup styles */
+.feedback-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.feedback-popup {
+  background-color: rgba(25, 25, 35, 0.95);
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(80, 80, 100, 0.5);
+}
+
+.feedback-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.feedback-popup-header h3 {
+  margin: 0;
+  color: #f0f0f0;
+}
+
+.feedback-close-button {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.feedback-textarea {
+  min-height: 100px;
+  padding: 10px;
+  background-color: rgba(15, 15, 25, 0.8);
+  color: #f0f0f0;
+  border: 1px solid rgba(80, 80, 100, 0.5);
+  border-radius: 4px;
+  margin-bottom: 15px;
+  resize: vertical;
+}
+
+.feedback-submit-button {
+  align-self: flex-end;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.feedback-submit-button:hover {
+  background-color: #0d8aee;
+}
+
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+  
+  .player-image-container,
+  .illustration-image-container {
+    flex: 0 0 auto;
+    padding: 0.25rem;
+  }
+  
+  .player-image,
+  .illustration-image {
+    max-width: 80px;
+  }
+  
+  .player-image-container {
+    align-self: flex-start;
+  }
+  
+  .illustration-image-container {
+    align-self: flex-end;
+  }
+
+  .center-content {
+    flex: 1;
+    margin: 0;
+  }
+  
+  .message-container {
+    max-height: calc(100vh - 300px);
+  }
+}

@@ -1,0 +1,8 @@
+## Search results
+
+<entities>
+{{SEARCHED_ENTITIES}}
+</entities>
+<search>
+{{SEARCHED_RESULTS}}
+</search>

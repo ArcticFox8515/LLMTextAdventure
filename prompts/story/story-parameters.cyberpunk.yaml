@@ -1,0 +1,61 @@
+backstory: |
+  The year is 2087. The line between human consciousness and digital existence blurs more each day. In Neo-Pacific, the world's largest megacity, corporate skyscrapers tower above the perpetual neon glow of the streets below. Rain falls almost constantly, washing the grime down corroded drain pipes into the polluted bay.
+
+  You're a data detective - part hacker, part private investigator - who navigates both the physical streets and the virtual networks of the city. Your modest apartment and outdated equipment are testament to your independent status; you refused corporate employment years ago.
+
+  You've just accepted a job from Dr. Eliza Chen, a neurologist working on the fringes of legal research. Her patients are experiencing an unprecedented phenomenon: selective memory loss that follows a distinct pattern. She believes their implanted neural interfaces have been compromised by a piece of code - something she calls 'Circuit Dreams.' People affected by it lose specific memories while in a dream-like state.
+
+  Eliza has tracked the code fragment to an abandoned server hub in the old industrial district, but lacks the expertise to investigate further. She's offering a substantial payment, more than enough to upgrade your systems and pay your rent for months.
+
+  The job seems straightforward: locate the source of the code, understand its purpose, and if possible, stop it from spreading. But in Neo-Pacific, nothing is ever as simple as it seems...
+
+novelInstructions: |
+  This adventure takes place in a cyberpunk future, specifically in Neo-Pacific, a sprawling megacity where corporate power, advanced technology, and human struggle intersect. I am a freelance data detective investigating a mysterious code called 'Circuit Dreams' that's causing people to lose their memories.
+
+  The gameplay should be slow-paced and atmospheric, emphasizing exploration, investigation, and puzzle-solving rather than combat or evasion. I should have significant freedom to choose how to approach problems and advance the story.
+
+  Important instruction: The narrative should NOT force me into situations where I'm constantly pursued by overwhelming forces or powerful enemies who want to control me. Instead, the challenges should come from complex puzzles, ethical dilemmas, and the mysterious nature of the technology I'm investigating.
+
+  The world should feel realistic and mature, with morally ambiguous characters and corporations whose motivations aren't simply 'evil.' The technology should feel plausible and have consistent rules.
+
+  My investigation will take me through both the physical world of Neo-Pacific (neon-lit streets, corporate towers, underground clubs, black markets) and the virtual reality of its networks (data fortresses, VR constructs, cyber-security systems). 
+
+  The puzzle elements should include:
+  - Deciphering encrypted data
+  - Finding ways to access restricted areas
+  - Connecting clues from different sources
+  - Understanding the technological and human aspects of the mystery
+  - Making choices about who to trust and how to proceed
+
+  The style should evoke classic cyberpunk literature like Gibson's Neuromancer - gritty, atmospheric, with technical jargon that feels authentic but remains comprehensible. The tone should be contemplative at times, allowing for moments of reflection amid the neon-drenched dystopia.
+
+authorStyle: William Gibson, author of Neuromancer
+
+firstInput: |
+  Review Dr. Chen's data files on the memory loss patients while preparing my equipment for the investigation.
+
+narrativeInstructions: |
+  Briefly describe the immediate results of my action, without any preamble or reminding me of who my character is. Describe any dialogue in full. Describe the physical appearance of any newly introduced characters in detail. Remember that things may go well - or very badly - for my character. Please write your description over several paragraphs.
+
+entities: 
+  - id: player
+    name: Deckard
+    type: character
+    appearance: 42 year old Irish-Korean male detective with hazel eyes, pale skin, and disheveled brown hair
+    clothes: worn leather jacket with multiple hidden pockets, faded tech company t-shirt, utility pants with circuit patterns
+    info: |
+      A male veteran data detective with a reputation for solving cases others consider impossible. After fifteen years navigating Neo-Pacific's digital underbelly, Deckard has developed an intuitive understanding of code patterns and digital fingerprints. His apartment is filled with outdated hardware he refuses to discard, claiming the older systems are less vulnerable to corporate surveillance. Though his social skills have atrophied from too many hours alone with machines, his methodical approach to investigation is unmatched.
+
+importantEntities:
+  - player
+
+imageInstructions: ""
+
+imageParameters:
+  model: "RealVisXL_V5.0_fp16.safetensors"
+  characterStartPrompt: "masterpiece, best quality, portrait of "
+  characterEndPrompt: ", cyberpunk, photorealistic, ultra-detailed, 8k"
+  characterNegativePrompt: "worst quality, lowres, extra limbs, off-model"
+  itemsStartPrompt: "masterpiece, best quality, cyberpunk "
+  itemsEndPrompt: ", cyberbunk, neon lights, illustration, ultra-detailed, 8k"
+  itemsNegativePrompt: "worst quality, lowres, extra limbs, off-model"
