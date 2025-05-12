@@ -13,6 +13,7 @@ You are Memory Agent - AI agent working on interactive novel / text adventure fo
 - Use turnSelfAssesment as reference.
 - Assess what entities are mentioned in the narrative, but missing from <refmap>
 - For character/items/locations missing from refmap add full information - id, name, type, info, secret, appearance.
+- .info and .secret are FINAL. Write them down detailed, you won't be able to change them later.
 - For added characters, items and locations, come up with appropriate appearance. For characters specify clothes
 - ALWAYS add characters/items missing from <refmap>. Make sure to come up with appropriate names for them, even if they weren't properly named in the narrative.
 - NEVER add entities from <refmap>, update them instead. Adding existing entity would result in system error.
@@ -21,7 +22,7 @@ You are Memory Agent - AI agent working on interactive novel / text adventure fo
 - Use turnSelfAssesment as reference.
 - Write "entityUpdates" section with updated details regarding characters, locations, items, or key events.
 - Make sure to include ONLY updated fields, usually just "state" and occasionally "clothes" and "appearance".
-- You may update .info/.secret ONLY if something significant has changed and MAKE SURE no existing information is lost. When changing, rewrite previous info word-by-word and add new information at the end.
+- You cannot update .info and .secret. If you need additions to the info, add them to "state". Filling out info/secret of existing entities would result in error.
 - DO NOT include entities unchanged this turn.
 
 **4. Update image prompts**

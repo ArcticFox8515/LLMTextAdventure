@@ -14,8 +14,8 @@ export interface Entity {
   appearance?: string;
   clothes?: string;
   info?: string;
+  secret?: string;
   state?: string;
-  secretInfo?: string;
 }
 
 export interface MemoryChunk {

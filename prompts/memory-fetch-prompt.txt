@@ -14,13 +14,14 @@ NEVER write <analysis> or <narrative> sections.
 **2. Fetch relevant entities**
 - <refmap> section contains all existing entity ids and their names, and <fetched_entities> contains entities already fetched.
 - In "entities" write list of entity ids that are relevant to current turn but missing from <fetched_entities>. They will be fetched by the system.
-- Always add all entities mentioned in last "gmPlan" from history.
+- Pay extra attention to fetching relevant characters.
 
-**3. Fetch the memory**
-- The system has the memory that contains all turns in the adventure. However, it shows only few recent ones by default.
-- In "search" section you may request a free-form text search across all the turn history. Use it if the player action or story progression refers to something that is missing from "Saved info".
-- Each line is a separate query. You can request multiple queries, but try to make no more than 2-3 searches per response.
-- Make the query concise.
+**3. Search the history**
+- The system keeps in history all previous turns. However, it shows only few recent ones by default.
+- In "search" section write a 3-4 search queries that would describe context of current turn.
+- Queries will be processed by FAISS similarity search engine to fetch text from history and entity info.
+- Each line is a separate query. Try make queries concise, for similarity search to work the best.
+- Pay attention to player's last action, as player may often refer to events missing from recent history, so it's important to fetch the required context.
 
 **4. STOP**
 - ONLY do the memory fetch.
@@ -31,32 +32,19 @@ NEVER write <analysis> or <narrative> sections.
 <novel_instructions>{{NOVEL_INSTRUCTIONS}}</novel_instructions>
 <world_setup>{{WORLD_SETUP}}</world_setup>
 
-## OUTPUT EXAMPLES
+## OUTPUT FORMAT
 
-1.
 ```xml
 <response>
 <entities>
-some_npc_from_refmap
-another_npc_from_refmap
+entity_id_1
+entity_id_2
 ...
 </entities>
 <search>
-Lore Topic Name
-quotation from narrative
+query 1
+query 2
 ...
-</search>
-</response>
-```
-
-2.
-```xml
-<response>
-<entities>
-</entities>
-<search>
-underground lab
-particle resonator
 </search>
 </response>
 ```
@@ -65,6 +53,6 @@ particle resonator
 
 - Honor the output format and write sections in exact order
 - No text outside required tags
-- Stop after "# end"
-- Output MUST be a valid YAML
+- Stop after "</search></response>"
+- If you were interrupted, continue from the same point
 - Responses missing any sections or deviating from defined tags will be discarded

@@ -118,7 +118,7 @@ class AdventureLLMPhase {
         const endIndex = response.indexOf(endTag, startIndex);
 
         if (startIndex !== -1 && endIndex !== -1) {
-            return response.substring(startIndex + startTag.length, endIndex);
+            return response.substring(startIndex + startTag.length, endIndex).trim();
         }
         return null;
     }
@@ -254,7 +254,7 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
             agentName: "Writer Agent",
             prompts: [NARRATIVE_PROMPT_PATH],
             maxTokens: 3000,
-            prefill: "<response>\n<narrative>\n",
+            prefill: "<response>\n",
             schema: null,
             saveMessageToHistory: true,
             retryCount: 2,
@@ -341,6 +341,19 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
             const existingNewEntities = Object.keys(response.newEntities).filter((key) => this.adventureState.memoryGraph.entities[key]);
             if (existingNewEntities.length > 0) {
                 result.errors.push(`'newEntities' section contains entities already present in memory: ${existingNewEntities.join(", ")}`);
+            }
+        }
+        if (response.entityUpdates) {
+            for (const entityId of Object.keys(response.entityUpdates)) {
+                const entity = this.adventureState.memoryGraph.entities[entityId];
+                if (!entity) {
+                    result.errors.push(`Entity ${entityId} must be added to memory before updating.`);
+                }
+                else if (response.entityUpdates[entityId].info) {
+                    result.errors.push(`Info of ${entityId} cannot be changed. Use 'state' instead`);
+                } else if (response.entityUpdates[entityId].secret) {
+                    result.errors.push(`Secret of ${entityId} cannot be changed. Use 'state' instead`);
+                }
             }
         }
         if (!response.illustrationId || (this.adventureState.memoryGraph.entities[response.illustrationId] == null && response.newEntities[response.illustrationId] == null)) {
