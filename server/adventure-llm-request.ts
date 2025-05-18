@@ -4,8 +4,9 @@ import * as yaml from 'js-yaml';
 import { logger } from "./logger";
 import { AdventureImageUpdate, AdventurePhaseConfig, AdventureScene, AdventureState, AdventureTurnInfo, AdventureUserInput, TurnValidationResult } from './adventure-types';
 import { MemoryGraphUpdate } from "./mcp-client";
-import { extractTurnNumber, MemoryChunk } from "./memory-graph";
+import { Entity, extractTurnNumber, MemoryChunk } from "./memory-graph";
 import dotenv from 'dotenv';
+import { z } from "zod";
 
 const NEW_ADVENTURE_PROMPT_PATH = "prompts/new-adventure-prompt.txt";
 const SUMMARY_PROMPT_PATH = "prompts/summarize-prompt.txt";
@@ -15,6 +16,7 @@ const MEMORY_FETCH_RESULT_PROMPT_PATH = "prompts/memory-fetch-result-prompt.txt"
 const ANALYZE_PROMPT_PATH = "prompts/analyze-prompt.txt";
 const NARRATIVE_PROMPT_PATH = "prompts/narrative-prompt.txt";
 const MEMORY_UPDATE_PROMPT_PATH = "prompts/memory-update-prompt.txt";
+const CRITIC_PROMPT_PATH = "prompts/critic-prompt.txt";
 
 dotenv.config();
 
@@ -49,15 +51,21 @@ class AdventureLLMPhase {
             role: "system",
             content: systemPrompt,
         });
+        this.praparePhase();
         for (let attempt = 1; attempt <= this.config.retryCount; attempt++) {
-            this.llmClient.addMessage({
-                role: "assistant",
-                content: this.config.prefill
-            })
+            if (this.config.prefill.length > 0) {
+                this.llmClient.addMessage({
+                    role: "assistant",
+                    content: this.config.prefill
+                })
+            }
             this.accumulatedResponse = this.config.prefill;
-            await this.llmClient.query(this.config.llmModel, this.config.maxTokens, this.config.schema, (chunk) => {
+            await this.llmClient.query(this.config.llmModel, this.config.maxTokens, this.config.stopSequence, this.config.schema, (chunk) => {
                 this.addTextChunk(chunk, onTurnUpdated);
             });
+            if (this.config.stopSequence.length > 0 && !this.accumulatedResponse.includes(this.config.stopSequence)) {
+                this.accumulatedResponse += this.config.stopSequence;
+            }
 
             result = new TurnValidationResult();
             if (this.accumulatedResponse.length === 0) {
@@ -75,7 +83,7 @@ class AdventureLLMPhase {
                 this.llmClient.addMessage({
                     role: "user",
                     content: yaml.dump({
-                        error: "Can't parse your response. The message was discarded. You have to try again. Keep attention to the required output format. Attempts left: " + (this.config.retryCount - attempt),
+                        error: "Wrong output format. The message was discarded. Re-generate the response. Don't perform reasoning or write free-form text, output only the response.",
                         errorDetails: result.errors,
                     })
                 });
@@ -109,20 +117,34 @@ class AdventureLLMPhase {
         return new TurnValidationResult();
     }
 
+    protected praparePhase() { }
+
     public finalizeHistory() { }
 
-    protected findXMLSection(response: string, sectionName: string): string | null {
+    protected findXMLSection(response: string, sectionName: string, turnResult: TurnValidationResult): string | null {
         const startTag = `<${sectionName}>`;
         const endTag = `</${sectionName}>`;
         const startIndex = response.indexOf(startTag);
         const endIndex = response.indexOf(endTag, startIndex);
 
+        if (startIndex !== -1 && response.indexOf(startTag, startIndex + startTag.length) !== -1) {
+            turnResult.errors.push(`The tag "${sectionName}" appears multiple times in the answer`);
+        }
+
         if (startIndex !== -1 && endIndex !== -1) {
             return response.substring(startIndex + startTag.length, endIndex).trim();
         }
+        turnResult.errors.push(`Failed to find "${sectionName}" section in the answer`);
         return null;
     }
 }
+
+interface MemoryFetchResult {
+    entities: string[];
+    search: string[];
+}
+
+const memoryFetchResultSchema = z.object({ entities: z.array(z.string()), search: z.array(z.string()) });
 
 class AdventureLLMPhaseMemoryFetch extends AdventureLLMPhase {
 
@@ -131,43 +153,48 @@ class AdventureLLMPhaseMemoryFetch extends AdventureLLMPhase {
             llmModel: OPENROUTER_MODEL_MEMORY_FETCH,
             agentName: "Search Agent",
             prompts: [MEMORY_FETCH_PROMPT_PATH],
-            maxTokens: 400,
-            prefill: "<response>\n<entities>\n",
-            schema: null,
-            saveMessageToHistory: false,
+            maxTokens: 200,
+            prefill: "",
+            stopSequence: "",
+            schema: memoryFetchResultSchema,
+            saveMessageToHistory: true,
             retryCount: 3,
         };
         super(llmClient, config, adventureState);
     }
 
+    protected praparePhase() {
+        this.llmClient.addMessage({
+            role: "user",
+            name: "Developer",
+            content: `Memory fetch phase.`,
+        });
+    }
+
     public async parsePhaseResult(): Promise<TurnValidationResult> {
         const result = new TurnValidationResult();
-        const entitiesSection = this.findXMLSection(this.accumulatedResponse, "entities");
-        const searchSection = this.findXMLSection(this.accumulatedResponse, "search");
-        if (!entitiesSection) {
-            result.errors.push("Can't parse <entities>. Did you forget to close the tags again?");
-        }
-        if (!searchSection) {
-            result.errors.push("Can't parse <search>. Did you forget to close the tags again?");
-        }
-        if (result.isFailed()) {
-            return result;
-        }
-        let entities: MemoryGraphUpdate = {};
-        for (const entityId of entitiesSection!.split("\n")) {
+        const response = JSON.parse(this.accumulatedResponse) as MemoryFetchResult;
+        let entities: Record<string, Partial<Entity>> = {};
+        for (const entityId of response.entities) {
             const entity = this.adventureState.memoryGraph.entities[entityId.trim()]
             if (entity && !this.adventureState.fetchedEntities.has(entityId)) {
                 entities[entity.id] = entity;
                 this.adventureState.fetchedEntities.add(entityId);
             }
+            if (!entity) {
+                result.errors.push(`Invalid entity id '${entityId}'`);
+            }
+        }
+        let existingChunks = new Set<string>();
+        let searchResults: { query: string, results: any[] }[] = [];
+        for (const query of response.search) {
+            searchResults.push({ query: query.trim(), results: await this.search(query.trim(), existingChunks) });
+        }
+        if (result.isFailed()) {
+            return result;
         }
         this.setParameterOverride("SEARCHED_ENTITIES", yaml.dump(entities, { lineWidth: -1 }));
 
-        let existingChunks = new Set<string>();
-        let searchResults: { query: string, results: any[] }[] = [];
-        for (const query of searchSection!.split("\n")) {
-            searchResults.push({ query: query.trim(), results: await this.search(query.trim(), existingChunks) });
-        }
         this.setParameterOverride("SEARCHED_RESULTS", yaml.dump(searchResults, { lineWidth: -1 }));
         return result;
     }
@@ -213,7 +240,8 @@ class AdventureLLMPhaseAnalyze extends AdventureLLMPhase {
             agentName: "Analyzer Agent",
             prompts: [ANALYZE_PROMPT_PATH],
             maxTokens: 1000,
-            prefill: "<response>\n<analysis>\n",
+            prefill: "```xml",
+            stopSequence: "</response>",
             schema: null,
             saveMessageToHistory: true,
             retryCount: 3,
@@ -221,27 +249,22 @@ class AdventureLLMPhaseAnalyze extends AdventureLLMPhase {
         super(llmClient, config, adventureState);
     }
 
+
+    protected praparePhase() {
+    }
+
     public async parsePhaseResult(): Promise<TurnValidationResult> {
         const result = new TurnValidationResult();
-
-        const analysisSection = this.findXMLSection(this.accumulatedResponse, "analysis");
-        if (!analysisSection) {
-            result.errors.push("Can't parse <analysis>. Likely due to malformed XML.");
-        }
-        const sceneSection = this.findXMLSection(this.accumulatedResponse, "scene");
-        if (!sceneSection) {
-            result.errors.push("Can't parse <scene>. Likely due to malformed XML.");
-        }
-        const narrativePlanSection = this.findXMLSection(this.accumulatedResponse, "narrativePlan");
-        if (!narrativePlanSection || narrativePlanSection.trim().length === 0) {
-            result.errors.push("Can't parse <narrativePlan>. Likely due to malformed XML.");
-        }
-        if (result.errors.length > 0) {
+        const response = this.findXMLSection(this.accumulatedResponse, "response", result);
+        if (result.isFailed()) {
             return result;
         }
-        this.adventureState.getLastTurn().analysis = analysisSection!;
-        this.adventureState.getLastTurn().scene = sceneSection!;
-        this.adventureState.getLastTurn().narrativePlan = narrativePlanSection!;
+        this.findXMLSection(response!, "scene", result);
+        this.findXMLSection(response!, "narrativePlan", result);
+        if (result.isFailed()) {
+            return result;
+        }
+        this.adventureState.getLastTurn().fullAnalysis = response!;
         return result;
     }
 }
@@ -254,7 +277,8 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
             agentName: "Writer Agent",
             prompts: [NARRATIVE_PROMPT_PATH],
             maxTokens: 3000,
-            prefill: "<response>\n",
+            prefill: "```xml",
+            stopSequence: "</response>",
             schema: null,
             saveMessageToHistory: true,
             retryCount: 2,
@@ -264,17 +288,12 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
 
     public async parsePhaseResult(): Promise<TurnValidationResult> {
         const result = new TurnValidationResult();
-        const narrativeSection = this.findXMLSection(this.accumulatedResponse, "narrative");
-        if (!narrativeSection) {
-            result.errors.push("Can't parse <narrative>. Likely due to malformed XML.");
+        const response = this.findXMLSection(this.accumulatedResponse, "response", result);
+        if (result.isFailed()) {
+            return result;
         }
-        if (narrativeSection?.trim().length === 0) {
-            result.errors.push("Can't parse <narrative>. Empty narrative.");
-        }
-        const suggestedActionsSection = this.findXMLSection(this.accumulatedResponse, "suggestedActions");
-        if (!suggestedActionsSection) {
-            result.errors.push("Can't parse <suggestedActions>. Likely due to malformed XML.");
-        }
+        const narrativeSection = this.findXMLSection(response!, "narrative", result);
+        const suggestedActionsSection = this.findXMLSection(response!, "suggestedActions", result);
         if (result.isFailed()) {
             return result;
         }
@@ -293,7 +312,7 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
     }
 
     protected findResponsePartialSection(response: string, sectionName: string): string | null {
-        const fullSection = this.findXMLSection(response, sectionName);
+        const fullSection = this.findXMLSection(response, sectionName, new TurnValidationResult());
         if (fullSection) {
             return fullSection;
         }
@@ -326,7 +345,8 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
             agentName: "Memory Agent",
             prompts: [MEMORY_UPDATE_PROMPT_PATH],
             maxTokens: 2000,
-            prefill: "# memory update start\n",
+            prefill: "```xml",
+            stopSequence: "</response>",
             schema: null,
             saveMessageToHistory: false,
             retryCount: 5,
@@ -334,9 +354,38 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
         super(llmClient, config, adventureState);
     }
 
+    protected praparePhase() {
+        this.llmClient.addMessage({
+            role: "user",
+            name: "Developer",
+            content:
+                `Memory update phase. Required output format:
+<response>
+<analysis>
+...
+</analysis>
+<memory>
+newEntities: # Optional
+  ...
+updates:
+  ...
+backgroundPrompt: ...
+illustrationId: ...
+illustrationPrompt: ... 
+playerPortraitPrompt: ...
+</memory>
+</response>`,
+        });
+    }
+
     public async parsePhaseResult(): Promise<TurnValidationResult> {
         const result = new TurnValidationResult();
-        const response = yaml.load(this.accumulatedResponse) as LLMResponseMemoryUpdate;
+        const responseStr = this.findXMLSection(this.accumulatedResponse, "response", result);
+        const memoryStr = this.findXMLSection(responseStr!, "memory", result);
+        if (result.isFailed()) {
+            return result;
+        }
+        const response = yaml.load(memoryStr!) as LLMResponseMemoryUpdate;
         if (response.newEntities) {
             const existingNewEntities = Object.keys(response.newEntities).filter((key) => this.adventureState.memoryGraph.entities[key]);
             if (existingNewEntities.length > 0) {
@@ -350,9 +399,11 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
                     result.errors.push(`Entity ${entityId} must be added to memory before updating.`);
                 }
                 else if (response.entityUpdates[entityId].info) {
-                    result.errors.push(`Info of ${entityId} cannot be changed. Use 'state' instead`);
+                    const combinedInfo = entity.info + response.entityUpdates[entityId].info;
+                    response.entityUpdates[entityId].info = combinedInfo;
                 } else if (response.entityUpdates[entityId].secret) {
-                    result.errors.push(`Secret of ${entityId} cannot be changed. Use 'state' instead`);
+                    const combinedSecret = entity.secret + response.entityUpdates[entityId].secret;
+                    response.entityUpdates[entityId].secret = combinedSecret;
                 }
             }
         }
@@ -441,7 +492,8 @@ class AdventureLLMPhaseSummary extends AdventureLLMPhase {
             agentName: "Summary Agent",
             prompts: [SUMMARY_PROMPT_PATH],
             maxTokens: 2000,
-            prefill: "# summary start\n",
+            prefill: "",
+            stopSequence: "</response>",
             schema: null,
             saveMessageToHistory: false,
             retryCount: 5,
@@ -449,16 +501,86 @@ class AdventureLLMPhaseSummary extends AdventureLLMPhase {
         super(llmClient, config, adventureState);
     }
 
+        protected praparePhase() {
+        this.llmClient.addMessage({
+            role: "user",
+            name: "Developer",
+            content:
+                `Summary phase. Required output format:
+<response>
+<summary>
+...
+</summary>
+<analysis>
+...
+</analysis>
+<plotPlan>
+...
+</plotPlan>
+<userProfile>
+...
+</userProfile>
+</response>`,
+        });
+    }
+
     public async parsePhaseResult(): Promise<TurnValidationResult> {
         const result = new TurnValidationResult();
-        const response = yaml.load(this.accumulatedResponse) as LLMResponseSummary;
-        this.adventureState.parameters["PLOT_PLAN"] = response.plotPlan;
-        this.adventureState.parameters["USER_PROFILE"] = response.userProfile;
-        this.adventureState.parameters["SUMMARY_ANALYSIS"] = response.analysis;
-        logger.info("Summary:", response.summary);
-        response.summary = this.adventureState.getParameterOrDefault("STORY_ARCHIVE", "") + response.summary;
-        this.adventureState.parameters["STORY_ARCHIVE"] = response.summary;
+        const response = this.findXMLSection(this.accumulatedResponse, "response", result);
+        if (result.isFailed()) {
+            return result;
+        }
+        let summary = this.findXMLSection(response!, "summary", result);
+        const analysis = this.findXMLSection(response!, "analysis", result);
+        const plotPlan = this.findXMLSection(response!, "plotPlan", result);
+        const userProfile = this.findXMLSection(response!, "userProfile", result);
+        if (result.isFailed()) {
+            return result;
+        }
+        this.adventureState.parameters["PLOT_PLAN"] = plotPlan!;
+        this.adventureState.parameters["USER_PROFILE"] = userProfile!;
+        this.adventureState.parameters["SUMMARY_ANALYSIS"] = analysis!;
+        logger.info("Summary:", summary!);
+        summary = this.adventureState.getParameterOrDefault("STORY_ARCHIVE", "") + summary!;
+        this.adventureState.parameters["STORY_ARCHIVE"] = summary!;
         this.adventureState.lastSummarizedTurn = this.adventureState.turns.length - 1;
+        return result;
+    }
+}
+
+
+class AdventureLLMPhaseCritic extends AdventureLLMPhase {
+
+    constructor(llmClient: LLMClient, adventureState: AdventureState) {
+        const config: AdventurePhaseConfig = {
+            llmModel: OPENROUTER_MODEL!,
+            agentName: "Critic Agent",
+            prompts: [CRITIC_PROMPT_PATH],
+            maxTokens: 1500,
+            prefill: "",
+            stopSequence: "",
+            schema: null,
+            saveMessageToHistory: true,
+            retryCount: 2,
+        };
+        super(llmClient, config, adventureState);
+    }
+
+    protected praparePhase() {
+        this.llmClient.addMessage({
+            role: "user",
+            name: "Developer",
+            content: `## Write the short feedback on the current turn`,
+        });
+    }
+
+    public async parsePhaseResult(): Promise<TurnValidationResult> {
+        const result = new TurnValidationResult();
+        const response = this.findXMLSection(this.accumulatedResponse, "response", result);
+        if (result.isFailed()) {
+            return result;
+        }
+        this.adventureState.getLastTurn().criticFeedback = response!;
         return result;
     }
 }
@@ -501,7 +623,7 @@ export class AdventureLLMRequest {
             recentTurnsText += turn.narrative;
             recentTurnsText += "\n";
             if (turn.feedback) {
-                recentTurnsText += `Feedback: ${yaml.dump(turn.feedback, { lineWidth: -1 })}\n`;
+                recentTurnsText += `Player feedback: ${yaml.dump(turn.feedback, { lineWidth: -1 })}\n`;
             }
         }
         return recentTurnsText;
@@ -519,9 +641,7 @@ export class AdventureLLMRequest {
         const turnNumber = this.adventureState.turns.length;
         this.adventureState.turns.push({
             turnNumber: turnNumber,
-            analysis: "",
-            scene: "",
-            narrativePlan: "",
+            fullAnalysis: "",
             narrative: "LLM is cooking",
             suggestedActions: "",
             images: [],
@@ -559,24 +679,41 @@ export class AdventureLLMRequest {
                 this.llmClient.addMessage({
                     role: "user",
                     name: "Player",
-                    content: yaml.dump(turn.userInput, { lineWidth: -1 }),
+                    content: `## Turn ${turnNumber} start\nPlayer input:\n${yaml.dump(turn.userInput, { lineWidth: -1 })}`,
                 });
             }
             this.llmClient.addMessage({
                 role: "assistant",
                 name: "Analyzer Agent",
-                content: `<response>\n<analysis>${turn.analysis}</analysis>\n<scene>${turn.scene}</scene>\n<narrativePlan>${turn.narrativePlan || ""}</narrativePlan></response>`,
+                content: turn.fullAnalysis,
+            });
+            this.llmClient.addMessage({
+                role: "user",
+                name: "Developer",
+                content: "Analysis is recorded. Now write the narrative.",
             });
             this.llmClient.addMessage({
                 role: turn.turnNumber > 0 ? "assistant" : "user",
                 name: turn.turnNumber > 0 ? "Writer Agent" : "History Provider",
                 content: `<response>\n<narrative>${turn.narrative}</narrative>\n<suggestedActions>${turn.suggestedActions}</suggestedActions>\n</response>`,
             });
+            if (turn.criticFeedback) {
+                this.llmClient.addMessage({
+                    role: "user",
+                    name: "Developer",
+                    content: "Narrative is recorded. Now write the critique.",
+                });
+                this.llmClient.addMessage({
+                    role: "assistant",
+                    name: "Critic Agent",
+                    content: turn.criticFeedback,
+                });
+            }
             if (turn.feedback) {
                 this.llmClient.addMessage({
                     role: "user",
                     name: "Player",
-                    content: yaml.dump(turn.feedback, { lineWidth: -1 }),
+                    content: `## Turn ${turnNumber} end\nPlayer feedback: ${yaml.dump(turn.feedback, { lineWidth: -1 })}`,
                 });
             }
         }
@@ -595,6 +732,7 @@ export class AdventureLLMRequest {
             new AdventureLLMPhaseAnalyze(this.llmClient, this.adventureState),
             new AdventureLLMPhaseNarrative(this.llmClient, this.adventureState),
             new AdventureLLMPhaseMemoryUpdate(this.llmClient, this.adventureState),
+            new AdventureLLMPhaseCritic(this.llmClient, this.adventureState),
         ])
 
         let result = new TurnValidationResult();
@@ -614,7 +752,7 @@ export class AdventureLLMRequest {
                 content: this.adventureState.resolvePrompt(HISTORY_PROMPT_PATH),
             });
             this.adventureState.parameters["TURNS_TO_SUMMARIZE"] = this.fetchRecentTurnNarratives(this.adventureState.lastSummarizedTurn + 1, this.adventureState.turns.length - 1);
-            result = await this.runPhase(new AdventureLLMPhaseSummary(this.llmClient, this.adventureState));
+            await this.runPhase(new AdventureLLMPhaseSummary(this.llmClient, this.adventureState));
             delete this.adventureState.parameters["TURNS_TO_SUMMARIZE"];
             this.llmClient.clearMessageHistory();
         }

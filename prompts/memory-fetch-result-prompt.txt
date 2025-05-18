@@ -1,8 +1,8 @@
 ## Search results
 
-<entities>
+<fetched_entities>
 {{SEARCHED_ENTITIES}}
-</entities>
+</fetched_entities>
 <search>
 {{SEARCHED_RESULTS}}
 </search>

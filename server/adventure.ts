@@ -132,7 +132,7 @@ export class Adventure {
     }
 
     public getVisibleTurn(): AdventureTurnInfo {
-        return this.state.turns.length > 0 ? this.state.turns[this.state.turns.length - 1] : { turnNumber: 0, narrativePlan: "", narrative: "", suggestedActions: "", images: [], analysis: "", scene: "", illustrationId: "" };
+        return this.state.turns.length > 0 ? this.state.turns[this.state.turns.length - 1] : { turnNumber: 0, fullAnalysis: "", narrative: "", suggestedActions: "", images: [], illustrationId: "" };
     }
 
     private saveState() {

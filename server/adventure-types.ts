@@ -21,7 +21,8 @@ export interface AdventurePhaseConfig {
     prompts: string[];
     maxTokens: number;
     prefill: string;
-    schema: Record<string, unknown> | null;
+    stopSequence: string;
+    schema: any | null;
     saveMessageToHistory: boolean;
     retryCount: number;
 }
@@ -48,15 +49,14 @@ export interface AdventureTurnFeedback {
 
 export interface AdventureTurnInfo {
     turnNumber: number;
-    analysis: string;
-    scene: string;
-    narrativePlan: string;
+    fullAnalysis: string;
     narrative: string;
     suggestedActions: string;
     userInput?: AdventureUserInput;
     illustrationId: string;
     images: AdventureImageUpdate[];
     feedback?: AdventureTurnFeedback;
+    criticFeedback?: string;
 }
 
 
@@ -136,9 +136,7 @@ export class AdventureState {
         this.turns = [
             {
                 turnNumber: 0,
-                analysis: "",
-                scene: "",
-                narrativePlan: "",
+                fullAnalysis: "",
                 narrative: parameters.backstory,
                 suggestedActions: "",
                 illustrationId: "",
