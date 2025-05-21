@@ -2,19 +2,20 @@ import OpenAI from 'openai';
 import { MCPClient, ToolCallResult } from './mcp-client';
 import { logger } from "./logger";
 import fs from 'fs';
-import { log } from 'console';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { ZodType } from 'zod';
+import { LLMCallParameters } from './adventure-types';
 
 // Extended interface for OpenAI parameters with provider support
 interface ExtendedChatCompletionParams extends OpenAI.ChatCompletionCreateParamsStreaming {
     provider?: {
         sort: string;
         require_parameters: boolean;
+        order?: string[];
     };
 }
 
 type LLMMessage = OpenAI.ChatCompletionMessageParam | ToolCallResult;
+
 
 export class LLMClient {
     private openai: OpenAI;
@@ -140,7 +141,7 @@ export class LLMClient {
         }
     }
 
-    async query<SchemaT extends ZodType>(llmModel: string, maxTokens: number, stopSequence: string, schema: SchemaT | null, onData: (chunk: string) => void) {
+    async query(params: LLMCallParameters, onData: (chunk: string) => void) {
         let toolCalls: OpenAI.ChatCompletionMessageToolCall[];
         let finishReason: string | null = null;
         let errorCount = 0;
@@ -149,25 +150,40 @@ export class LLMClient {
 
             this.dumpMessages();
             let fullQuery: ExtendedChatCompletionParams = {
-                model: llmModel,
+                model: params.llmModel,
                 messages: this.messages,
                 stream: true,
-                max_tokens: maxTokens,
-                stop: stopSequence.length > 0 ? [stopSequence] : undefined,
+                max_tokens: params.maxTokens,
+                stop: (params.stopSequence && params.stopSequence.length > 0) ? [params.stopSequence] : undefined,
             };
             (fullQuery as any).provider = {
                 sort: "price",
                 require_parameters: true,
+                order: [
+                    "google-vertex/europe",
+                    "google-vertex",
+                ]
             };
-            if (schema) {
+            if (params.schema) {
                 fullQuery.response_format = {
                     type: "json_schema",
                     json_schema: {
                         name: "Response",
                         strict: true,
-                        schema: zodToJsonSchema(schema)
+                        schema: zodToJsonSchema(params.schema)
                     }
                 };
+            }
+            else if (params.jsonOutput) {
+                fullQuery.response_format = {
+                    type: "json_object",
+                };
+            }
+            if (params.reasoning) {
+                (fullQuery as any).reasoning = {
+                    effort: params.reasoning,
+                    exclude: false,
+                }
             }
             try {
                 const stream = await this.openai.chat.completions.create(fullQuery as OpenAI.ChatCompletionCreateParamsStreaming);
@@ -176,9 +192,10 @@ export class LLMClient {
                     role: "assistant",
                 }
                 finishReason = null;
+                let isReasoning = false;
                 for await (const chunk of stream) {
                     // logger.info(JSON.stringify(chunk, null, 2));
-                    const delta = chunk.choices[0]?.delta;
+                    const delta : any | undefined = chunk.choices[0]?.delta;
                     if (chunk.choices[0]?.finish_reason) {
                         finishReason = chunk.choices[0].finish_reason;
                     }
@@ -188,8 +205,19 @@ export class LLMClient {
                             fullResponse.content = "";
                         }
                         fullResponse.content += delta.content;
+                        if (isReasoning) {
+                            logger.info("</think>");
+                            isReasoning = false;
+                        }
                         logger.incremental(delta.content);
                         onData(delta.content);
+                    }
+                    if (delta?.reasoning) {
+                        if (!isReasoning) {
+                            logger.info("<think>");
+                            isReasoning = true;
+                        }
+                        logger.incremental(delta.reasoning);
                     }
 
                     if (delta?.refusal) {

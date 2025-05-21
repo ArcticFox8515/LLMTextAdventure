@@ -9,7 +9,7 @@ interface AdventureUserInput {
   errorDetails?: string[];
 }
 
-interface AdventureTurnInfo {
+interface AdventureTurnViewModel {
   turnNumber: number;
   narrative: string;
   suggestedActions: string;
@@ -23,7 +23,7 @@ interface ImageData {
 
 const App: React.FC = () => {
   const [query, setQuery] = useState('');
-  const [turnInfo, setTurnInfo] = useState<AdventureTurnInfo[]>([]);
+  const [turnInfo, setTurnInfo] = useState<AdventureTurnViewModel[]>([]);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0); // Track current message index
   const [turnInProgress, setTurnInProgress] = useState(false);
   const [ws, setWs] = useState<WebSocket | null>(null);
@@ -50,7 +50,7 @@ const App: React.FC = () => {
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'turn-update') {
-        const turnInfo: AdventureTurnInfo = data.content;
+        const turnInfo: AdventureTurnViewModel = data.content;
         setTurnInfo((prev) => {
           let updated = [...prev];
           while (updated.length <= turnInfo.turnNumber) {
@@ -144,7 +144,7 @@ const App: React.FC = () => {
     setCurrentMessageIndex((prevIndex) => Math.min(prevIndex + 1, turnInfo.length - 1));
   };
 
-  const getCurrentTurnInfo = (): AdventureTurnInfo => {
+  const getCurrentTurnInfo = (): AdventureTurnViewModel => {
     return currentMessageIndex < turnInfo.length ? turnInfo[currentMessageIndex] : { turnNumber: 0, narrative: '', suggestedActions: '' };
   }
 

@@ -1,8 +1,5 @@
-## Search results
+## Related history
 
-<fetched_entities>
-{{SEARCHED_ENTITIES}}
-</fetched_entities>
-<search>
+<related_history>
 {{SEARCHED_RESULTS}}
-</search>
+</related_history>

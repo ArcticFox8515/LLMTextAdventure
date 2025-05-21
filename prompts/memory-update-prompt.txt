@@ -10,7 +10,7 @@ Entities missing from here need to be added first.
 
 **1. Self-assess turn result**
 - Analyze the last turn in the history.
-- At the start of <response> write short self-assesment on how the existing entities changed this turn.
+- Before writing the response, do a short short self-assesment on how the existing entities changed this turn. Use thinking for this.
 - Note all named characters/items/locations in narrative missing from <refmap>. These are "new entities" you need to add.
 - Note all changed entities and which fields of them need update (usually it's only "status". Sometimes "clothes" or other fields)
 - Decide what entity should be in illustration to the current scene (usually the character in spotlight). Shouldn't be the player, as player has their own image prompt.
@@ -86,9 +86,6 @@ User-defined instructions (they take priority!):
 
 ```
 <response>
-<analysis>
-...
-</analysis>
 <memory>
 newEntities:
   someNewCharacter: # Full update ONLY for new characters

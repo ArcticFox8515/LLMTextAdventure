@@ -1,0 +1,56 @@
+backstory: |
+  For as long as you can remember, the tales of immortal cultivators have captivated your imagination. While others sought power through conquest or political machinations, you were drawn to the quieter path—the way of self-cultivation and inner peace.
+
+  After years of serving as a minor official in your provincial town, you have finally saved enough resources and resolved to follow your heart's true calling. You have resigned from your post, bid farewell to your few close friends, and set out toward the legendary Azure Cloud Mountains, where it is said the most enlightened cultivators reside in secluded valleys and hidden grottos.
+
+  The journey has been long, but as you ascend the winding mountain path, a strange sense of homecoming fills your heart. The mist parts occasionally to reveal breathtaking vistas of forested peaks and cascading waterfalls. Somewhere in these mountains, you hope to find not just teachers, but also yourself.
+
+  ***
+
+  You pause at a fork in the mountain path, taking a moment to catch your breath and appreciate the beauty around you. The air here feels different—cleaner, somehow charged with subtle energy. You decide which path to take, knowing that your journey of cultivation truly begins now.
+
+
+novelInstructions: |
+  This adventure takes place in a mythical version of ancient China, where the principles of xianxia cultivation are real. I am a middle-aged seeker who has left behind my ordinary life to pursue the dao of cultivation. Unlike many xianxia stories, this is not a tale of combat prowess or dominating others—it is about inner growth, wisdom, and finding harmony with the world.
+
+  The Azure Cloud Mountains contain various secluded locations where different cultivation traditions are practiced. I will encounter masters of meditation, qi circulation, alchemy, calligraphy, music, and other paths to enlightenment. Each has something valuable to teach, though their approaches may differ.
+
+  The adventure should focus on exploration, conversation, and moments of insight. I will need to prove my sincerity to potential teachers, solve philosophical puzzles, perform acts of kindness, and meditate in places of natural power. The challenges I face will be primarily internal—overcoming my own limitations, preconceptions, and attachments.
+
+  The world should feel mystical but grounded, with fantastical elements (like qi manipulation or spirit beasts) presented in a thoughtful, almost philosophical manner. The tone should be contemplative and occasionally humorous, avoiding both childish simplicity and cynical darkness.
+
+  The narrative should include beautiful descriptions of natural settings, thoughtful conversations about the nature of existence, and moments of both frustration and breakthrough in my cultivation practice. Other characters should have depth and their own philosophies about the proper path to enlightenment.
+
+  As I progress, subtle signs of my advancing cultivation should become apparent—perhaps a clearer complexion, a more centered demeanor, or glimpses of supernatural awareness. The ultimate goal is to achieve a tangible breakthrough in my cultivation, manifesting as the ability to sense and interact with the world's natural energy.
+
+authorStyle: A writer of thoughtful wuxia and xianxia fiction, blending philosophical depth with vivid imagery in the tradition of Jin Yong and Louis Cha
+
+firstInput: |
+  Begin the adventure. Turn 0 contains the initial backstory shown to the player. Player will start gameplay after this turn.
+
+narrativeInstructions: |
+  Briefly describe the immediate results of my action, without any preamble or reminding me of who my character is. Describe any dialogue in full. Describe the physical appearance of any newly introduced characters in detail. Remember that things may go well - or very badly - for my character. Please write your description over several paragraphs.
+
+entities: 
+  - id: player
+    name: Wei Liang
+    type: character
+    appearance: |
+      a 45 year old Chinese scholar with thoughtful brown eyes, light olive skin, and a neatly trimmed black beard with strands of gray
+    clothes: traditional Ming dynasty scholar robes in deep blue with subtle embroidery, a simple cloth belt, and soft cloth shoes
+    info: |
+      A former imperial scholar who grew disillusioned with court politics. At forty-five, Wei Liang has the bearing of a learned man, with thoughtful eyes and a neatly trimmed beard showing the first strands of gray. His years of studying classical texts have given him a strong foundation in philosophical principles, though he knows theory must now give way to practice. He seeks a path that honors knowledge while transcending its limitations.
+
+importantEntities:
+  - player
+
+imageInstructions: ""
+
+imageParameters:
+  model: "RealVisXL_V5.0_fp16.safetensors"
+  characterStartPrompt: "masterpiece, best quality, portrait of "
+  characterEndPrompt: ", photorealistic, ultra-detailed, 8k"
+  characterNegativePrompt: "worst quality, lowres, extra limbs, off-model"
+  itemsStartPrompt: "masterpiece, best quality, "
+  itemsEndPrompt: ", illustration, ultra-detailed, 8k"
+  itemsNegativePrompt: "worst quality, lowres, extra limbs, off-model"

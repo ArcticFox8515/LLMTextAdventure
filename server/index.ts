@@ -11,6 +11,7 @@ import { logger } from "./logger";
 import { AdventureImageUpdate, AdventureTurnInfo, ImageRole } from "./adventure-types";
 import { Adventure, loadStoryParameters } from "./adventure";
 import { GeneratorOptions, ImageGenerator } from "./image-provider";
+import { getTurnNarrative } from "./adventure-llm-request";
 
 dotenv.config();
 
@@ -66,7 +67,13 @@ class ClientSession {
   }
 
   private sendTurnUpdate(turnInfo: AdventureTurnInfo) {
-    this.ws?.send(JSON.stringify({ type: "turn-update", content: turnInfo }));
+    const turnViewModel = {
+        turnNumber: turnInfo.turnNumber,
+        narrative:  getTurnNarrative(turnInfo, true),
+        suggestedActions: turnInfo.suggestedActions,
+        userInput: turnInfo.userInput,
+    }
+    this.ws?.send(JSON.stringify({ type: "turn-update", content: turnViewModel }));
   }
 
   private sendImageUpdate(imageUpdate: AdventureImageUpdate) {

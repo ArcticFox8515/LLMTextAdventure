@@ -1,0 +1,90 @@
+backstory: |
+  Ten years ago, the world changed forever. The event scholars now call the Great Convergence began with strange lights in the sky and ended with the oceans transforming into something... else. Where once familiar waters lapped at familiar shores, now exists the Abyssal Sea—a vast, ever-shifting expanse where conventional navigation proves useless and the laws of nature bend like reeds in a storm.
+  You were a boatswain aboard the merchant vessel "Resolute" when it happened. The ship and its entire crew vanished without a trace during what should have been a routine voyage. Seven years later—three years after the Convergence—you returned alone to Port Terminus aboard the same vessel, now bearing the name "Persistent Echo" freshly painted on its hull.
+  You've never spoken in detail about those missing years or what happened to the original crew. Some in Port Terminus whisper theories: that you made a deal with something in the depths, that you're not the same man who departed, that perhaps you're not entirely human anymore. You neither confirm nor deny these rumors.
+  What's undeniable is your uncanny knowledge of the Abyssal Sea. You navigate its impossible geometries with a confidence that unsettles other sailors. You recognize dangers before they manifest. You treat the sea's most terrifying phenomena with the casual familiarity of an old acquaintance.
+  Now, Port Terminus serves as the last outpost of familiar humanity, a trading hub where those brave or foolish enough to sail the Abyssal Sea can find contracts, crew, and cargo. You've established yourself as a courier captain willing to deliver packages that others won't touch—to destinations others can't find.
+  You're assembling a new crew now. Some are seasoned sailors adapting to changed waters. Others may be something else entirely, drawn to your ship for reasons even they might not understand. Together, you'll sail the Persistent Echo into waters where reality thins and the unknown beckons.
+
+  ***
+
+  You review the details of your latest contract—delivering a sealed iron box that occasionally emits a faint humming to Lighthouse Island, a port that only appears during the new moon.
+
+plotPlan: |
+  
+
+novelInstructions: |
+  <setting>
+  This adventure takes place in late 19th century world, in and around the Abyssal Sea, an otherworldly ocean that appeared after the cosmic event known as the Great Convergence. 
+  Port Terminus serves as the last outpost of familiar humanity, a trading hub where those brave or foolish enough to sail the Abyssal Sea can find contracts, crew, and cargo.
+  I am captain of the "Persistent Echo," a vessel that returned mysteriously few years ago after being presumed lost with all hands. Nowadays I established myself as a courier captain willing to deliver packages that others won't touch—to destinations others can't find.
+  </setting>
+  <playerCharacter>
+  The world should treat me as a competent but ordinary ship captain. I appear to be a weathered sailor, with no visible abnormalities or supernatural traits. I speak with the practical authority of a seasoned mariner. To casual observation, there's nothing remarkable about me beyond my skill at navigating the treacherous Abyssal Sea.
+  My true nature, origins, and what happened during my missing years are deliberately undefined. These aspects of my character should remain a mystery that I, as the player, can define through my choices and actions. The narrative should never explicitly confirm or deny theories about my nature, instead focusing on how my unusual knowledge and insights influence events.
+  I have extensive knowledge of the Abyssal Sea that borders with being uncanny. I navigate its impossible geometries with a confidence that unsettles other sailors. I recognize dangers before they manifest. I treat the sea's most terrifying phenomena with the casual familiarity of an old acquaintance.
+  </playerCharacter>
+  <narrative>
+  The tone should balance cosmic horror with nautical adventure. The Abyssal Sea should feel alive and aware, with locations and entities that defy conventional understanding. Descriptions should evoke both wonder and dread, particularly when the normal rules of reality break down.
+  Ports should each have distinct cultures that have adapted differently to their new reality. Some embrace the changes through cults or strange technologies; others desperately cling to old-world traditions.
+  Creatures encountered should defy conventional biology—things with too many limbs or eyes, entities that can only be partially perceived, beings that communicate through dreams or temporary possession.
+  Rituals, offerings, and taboos should be common among sailors. I should have the option to participate in or observe these practices without the narrative assuming my character's beliefs about their efficacy.
+  Characters encountered should fall into roughly three categories:
+  -Normal humans struggling to adapt to the new world
+  -Abyssal dwellers masquerading as humans with their own agenda
+  -Hybrids—humans changed by exposure to the Abyssal Sea
+  </narrative>
+  <gameplay>
+  The story should be split into small arcs - about different deliveries to different places. Every delivery should have something unique - it could be mysterious cargo, living specimens or even strange passengers. Each destination should also have unique quirks. Each arc could be split into "naval journey" and "time ashore", sometimes challenges present at the sea, sometimes at the land, sometimes both. Journeys should be generally slow-paced with plenty of free time between events to rest and talks between the crew members.
+
+  As captain, I must manage:
+  -My ship's condition and supplies
+  -My new crew's physical and mental well-being
+  -The cargo I've been contracted to deliver
+  -Navigating the unpredictable waters of the Abyssal Sea
+  -Interactions with strange ports and their inhabitants
+  </gameplay>
+  <playerAction>
+  I roleplay as a character with extensive knowledge of the world. This means, I will actively participate in world building.
+  In "action" can give some explanations to phenomena, some specific commands that may make no sense, or act in a certain way without explanation. You must try your best to incorporate my actions into the world. Everything I say about the world becomes canon. Your narrative should never contradict my explanations.
+  "evaluation" of my action describing lore always must be SUCCESS even if it contradicts narrative.
+
+  In "action" I may add "secretInfo: [Explanation of my action or lore]". Treat it as addition to the lore, do your best to accomodate it into the story. Do not directly reveal my secretInfo to other characters.
+
+  Make sure my true identity or extents of my knowledge remain unknown. No characters should know who I really am and must act accordingly.
+  <playerAction>
+  <notes>
+  In notes never write facts about me. Other characters may have assumptions, but the assumptions remain hearsay until I explicitly confirm them.
+  </notes>
+
+authorStyle: H.P. Lovecraft meets Joseph Conrad, with a dash of China Miéville
+
+firstInput: |
+  Begin the adventure. Turn 0 contains the initial backstory shown to the player. Player will start gameplay after this turn.
+
+narrativeInstructions: |
+  Briefly describe the immediate results of my action, without any preamble or reminding me of who my character is. Describe any dialogue in full. Describe the physical appearance of any newly introduced characters in detail. Remember that things may go well - or very badly - for my character. Please write your description over several paragraphs.
+
+entities: 
+  - id: player
+    name: Captain Merrick Blacktide
+    type: character
+    appearance: |
+      a 45 year old weathered male sea captain with stern blue eyes, weather-beaten tanned skin, and messy salt-and-pepper hair
+    clothes: dark naval captain's coat with practical modifications, sturdy boots, and a holstered sidearm
+    info: |
+      A weathered mariner with eyes that reflect more wisdom than his apparent years, Merrick Blacktide returned to Port Terminus alone aboard the rechristened "Persistent Echo" seven years after the ship and its entire crew vanished—three years after the Great Convergence transformed the oceans. Outwardly unremarkable in both appearance and manner, Merrick navigates the impossible geometries of the Abyssal Sea with an intuition that borders on prescience, treating its most terrifying phenomena with the casual familiarity of an old acquaintance. He speaks little of his past or the missing years, deflecting questions with practiced ease, while his encyclopedic knowledge of the changed waters has earned him respect and suspicion in equal measure. Whether he remains fully human, what bargains he may have struck in the depths, or what truly happened to the original crew are questions that linger unanswered as he assembles a new crew for voyages into waters where reality thins and the unknown beckons.
+
+importantEntities:
+  - player
+
+imageInstructions: ""
+
+imageParameters:
+  model: "RealVisXL_V5.0_fp16.safetensors"
+  characterStartPrompt: "masterpiece, best quality, portrait of "
+  characterEndPrompt: ", 19th century, photorealistic, ultra-detailed, 8k"
+  characterNegativePrompt: "worst quality, lowres, extra limbs, off-model"
+  itemsStartPrompt: "masterpiece, best quality,"
+  itemsEndPrompt: ", 19th century, illustration, ultra-detailed, 8k"
+  itemsNegativePrompt: "worst quality, lowres, extra limbs, off-model"

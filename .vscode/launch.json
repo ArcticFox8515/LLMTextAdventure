@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Server",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/dist/server/index.js",
+      "preLaunchTask": "npm: build:server",
+      "outFiles": ["${workspaceFolder}/dist/server/**/*.js"],
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
