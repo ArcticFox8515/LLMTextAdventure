@@ -1,4 +1,6 @@
+# Build and distribution directories
 build/
+dist/
 
 # Node-generated files
 node_modules/
@@ -6,16 +8,33 @@ node_modules/
 # Python-generated files
 __pycache__/
 *.py[oc]
-dist/
 wheels/
 *.egg-info
 
 # Virtual environments
 .venv
 .env
+
+# Generated files
+*.js
+*.js.map
+
+# Application logs and saved data
+/logs
+/saved
 /backend/logs
 /backend/saved
-/saved
-/logs
 /server/logs
+
+# Story configuration (user-specific)
 /prompts/story/story-parameters.yaml
+
+# Electron build outputs
+/release
+*.exe
+*.dmg
+*.AppImage
+
+# Development files
+.DS_Store
+Thumbs.db

@@ -36,11 +36,9 @@ const App: React.FC = () => {
   // Feedback popup state
   const [feedbackPopupOpen, setFeedbackPopupOpen] = useState(false);
   const [feedbackType, setFeedbackType] = useState<'like' | 'dislike' | null>(null);
-
   useEffect(() => {
-    // Use relative WebSocket URL that will work regardless of deployment location
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host.replace('3001', '3002')}`;
+    // For Electron, connect directly to localhost WebSocket
+    const wsUrl = 'ws://localhost:3002';
     const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {

@@ -1,17 +1,18 @@
 {
   "name": "mcp-adventure",
   "version": "1.0.0",
-  "description": "MCP Adventure Game with integrated frontend and backend",
-  "main": "dist/server/index.js",
-  "scripts": {
-    "dev:client": "cd client && vite",
+  "description": "LLM Adventure Game",  "main": "dist/electron/electron/main/main.js",
+  "homepage": "./","scripts": {
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build:renderer": "webpack --config webpack.config.js",
     "build:server": "tsc -p tsconfig.server.json",
-    "start:server": "node dist/server/index.js",
-    "dev": "npm run build:server && concurrently \"npm run dev:client\" \"npm run start:server\"",
-    "build:client": "cd client && vite build",
-    "build": "npm run build:client && npm run build:server",
-    "start": "node dist/server/index.js",
-    "clean": "rimraf dist"
+    "build": "npm run clean && npm run build:server && npm run build:renderer && npm run build:electron",
+    "start": "npm run build && electron .",
+    "dev": "npm run build && electron . --dev",
+    "clean": "rimraf dist",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "postinstall": "electron-rebuild"
   },
   "dependencies": {
     "@xenova/transformers": "^2.17.2",
@@ -33,23 +34,62 @@
   "devDependencies": {
     "@eslint/js": "^9.22.0",
     "@types/cors": "^2.8.17",
+    "@types/electron": "^1.4.38",
     "@types/express": "^4.17.17",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.17.57",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/ws": "^8.18.1",
-    "@vitejs/plugin-react-swc": "^3.8.0",
     "concurrently": "^8.2.2",
+    "css-loader": "^7.1.2",
+    "electron": "^36.3.2",
+    "electron-builder": "^26.0.12",
+    "electron-is-dev": "^3.0.1",
+    "electron-rebuild": "^3.2.9",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "html-webpack-plugin": "^5.6.3",
     "nodemon": "^3.1.10",
     "rimraf": "^5.0.10",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.26.1",
-    "vite": "^6.3.1"
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  },
+  "build": {
+    "appId": "com.example.mcp-adventure",
+    "productName": "MCP Adventure",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "prompts/**/*",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "prompts",
+        "to": "prompts"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
   }
 }
