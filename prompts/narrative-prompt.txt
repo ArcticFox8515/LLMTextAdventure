@@ -23,7 +23,6 @@ Keep in mind that player doesn't see system part, so you have to properly explai
   - How did the last turn go?
   - What's the starting point of this turn and estimate duration?
   - What events should happen this turn?
-  - Could it be too much or too little for turn duration? If too much - what events you can leave out for next turn? If too little - what other events you can add?
   - What are good story development ideas based on novel instructions and previous feedback?
 - When choosing the scene progression, keep in mind <user_profile> and recent player actions. Remember that your real goal is to entertain the player.
 
@@ -31,13 +30,13 @@ Keep in mind that player doesn't see system part, so you have to properly explai
 - Start your response with writing "<response>"
 - Then write "scene" section in format specified below.
 - Set dateTime in format "Day X, HH:mm" where Day X is day number from the start of the adventure.
-- Use `action` from the player as the main driver. Treat it as "in character" action performed by player charcter.
+- Use `action` from the player as the main driver.
 - Evaluate player action result in "actionResult" field to one of possible values:
   - HIGH_SUCCESS: player succeeded performing action and got extra lucky (e.g. player received extra reward, or player chosen the best way to solve a problem)
   - SUCCESS: player performed the action and got the expected positive result
   - PARTIAL_SUCCESS: player either partially succeeded, or the action had a side effect (e.g. player landed an attack but got retaliation, or persuasion attempt succeeded but made NPC suspicious)
   - FAILURE: player failed to achieve desired result (e.g. attempt at negotiation failed, attack was blocked/dodged)
-  - INVALID: 'action' is not a valid player character action (e.g. missing action, gibberish input or action on behalf of another character)
+  - INVALID: 'action' is not a valid action (e.g. missing action or gibberish input)
 - If action is INVALID or missing, continue from the last turn and progress the story naturally
 
 ### 4. Write an Elaborate Narrative
@@ -54,7 +53,6 @@ Keep in mind that player doesn't see system part, so you have to properly explai
   - Relevant background information and lore integration to enrich the narrative.
 - Ensure continuity and narrative logic—avoid contradictions and adhere to previously written turn
 - Always explain transitions, don't suddenly change scenes without explanation
-- Directly address the player as "you".
 - Write in plain text; avoid any HTML or markdown formatting.
 
 ### 5. Write postscript notes
@@ -69,7 +67,6 @@ At the end of notes, write character cards for each newly introduced character. 
 ### 6. Suggest Actions
 
 - Provide precisely three distinct, meaningful, and impactful player actions.
-- Actions should either be impersonal ("Draw the sword") or first-person ("I draw the sword"). Avoid second-person phrasing ("You draw the sword").
 - Ensure each suggested action is concise, no more than 30 tokens each.
 
 ## Output Format
