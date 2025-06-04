@@ -30,7 +30,7 @@ Keep in mind that player doesn't see system part, so you have to properly explai
 - Start your response with writing "<response>"
 - Then write "scene" section in format specified below.
 - Set dateTime in format "Day X, HH:mm" where Day X is day number from the start of the adventure.
-- Use `action` from the player as the main driver.
+- Use `action` from the player as the main driver. It can be either description of in-character action or a speech said by the player character.
 - Evaluate player action result in "actionResult" field to one of possible values:
   - HIGH_SUCCESS: player succeeded performing action and got extra lucky (e.g. player received extra reward, or player chosen the best way to solve a problem)
   - SUCCESS: player performed the action and got the expected positive result
@@ -53,6 +53,7 @@ Keep in mind that player doesn't see system part, so you have to properly explai
   - Relevant background information and lore integration to enrich the narrative.
 - Ensure continuity and narrative logic—avoid contradictions and adhere to previously written turn
 - Always explain transitions, don't suddenly change scenes without explanation
+- Directly address the player as "you"
 - Write in plain text; avoid any HTML or markdown formatting.
 
 ### 5. Write postscript notes

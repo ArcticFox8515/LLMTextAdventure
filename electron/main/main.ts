@@ -223,13 +223,8 @@ class ElectronApp {
         contextIsolation: true,
         preload: path.join(__dirname, '../preload/preload.js'),
       },
-    });    const url = false // Force production mode 
-      ? 'http://localhost:3000' 
-      : `file://${path.join(__dirname, '../../../renderer/index.html')}`;
-    
-    this.mainWindow.loadURL(url);    if (false) { // Don't open DevTools in production
-      this.mainWindow?.webContents.openDevTools();
-    }
+    });
+    this.mainWindow.loadURL(`file://${path.join(__dirname, '../../../renderer/index.html')}`);
 
     this.mainWindow.on('closed', () => {
       this.mainWindow = null;

@@ -595,7 +595,7 @@ class AdventureLLMPhaseSummary extends AdventureLLMPhase {
             retryCount: 5,
             llmParameters: {
                 llmModel: OPENROUTER_MODEL!,
-                maxTokens: 2000,
+                maxTokens: 3000,
                 stopSequence: "",
                 jsonOutput: true,
                 schema: null,

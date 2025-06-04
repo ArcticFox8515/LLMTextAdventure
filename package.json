@@ -1,8 +1,10 @@
 {
   "name": "mcp-adventure",
   "version": "1.0.0",
-  "description": "LLM Adventure Game",  "main": "dist/electron/electron/main/main.js",
-  "homepage": "./","scripts": {
+  "description": "LLM Adventure Game",
+  "main": "dist/electron/electron/main/main.js",
+  "homepage": "./",
+  "scripts": {
     "build:electron": "tsc -p tsconfig.electron.json",
     "build:renderer": "webpack --config webpack.config.js",
     "build:server": "tsc -p tsconfig.server.json",
@@ -22,6 +24,7 @@
     "express": "^4.18.2",
     "faiss-node": "^0.5.1",
     "js-yaml": "^4.1.0",
+    "node-abi": "^4.9.0",
     "openai": "^4.95.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -29,6 +32,7 @@
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
     "ws": "^8.18.1",
+    "zod": "^3.25.46",
     "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
