@@ -38,7 +38,6 @@ class ElectronApp {
   private async startBackend(): Promise<void> {
     const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
     const OPENROUTER_API_URL = process.env.OPENROUTER_API_URL || "https://openrouter.ai/api/v1";
-    const STORY_PARAMETERS_PATH = "prompts/story/story-parameters.yaml";
 
     if (!OPENROUTER_API_KEY) {
       throw new Error("OPENROUTER_API_KEY is not set");

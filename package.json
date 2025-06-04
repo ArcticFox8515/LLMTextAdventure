@@ -1,5 +1,5 @@
 {
-  "name": "mcp-adventure",
+  "name": "llm-text-adventure",
   "version": "1.0.0",
   "description": "LLM Adventure Game",
   "main": "dist/main/main.js",
@@ -65,8 +65,8 @@
     "webpack-cli": "^6.0.1"
   },
   "build": {
-    "appId": "com.example.mcp-adventure",
-    "productName": "MCP Adventure",
+    "appId": "com.example.llm-text-adventure",
+    "productName": "LLM Text Adventure",
     "directories": {
       "output": "release"
     },

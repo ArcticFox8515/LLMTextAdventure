@@ -74,6 +74,6 @@ You can then open http://127.0.0.1:3001/ in your browser
 
 ## Image Generation
 
-MCP Adventure uses ComfyUI for image generation. Make sure ComfyUI is running and accessible at the URL specified in your `.env` file (default: `http://127.0.0.1:8190`). Make sure the checkpoint from `story-parameters.xml` is present in the model.
+LLM Text Adventure uses ComfyUI for image generation. Make sure ComfyUI is running and accessible at the URL specified in your `.env` file (default: `http://127.0.0.1:8190`). Make sure the checkpoint from `story-parameters.xml` is present in the model.
 
 You can edit image generator prompt located in `prompts/image-generator-prompt.json`
