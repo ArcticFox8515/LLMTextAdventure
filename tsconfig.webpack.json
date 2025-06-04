@@ -16,12 +16,6 @@
     "module": "ESNext"
   },
   "include": [
-    "client/src/**/*"
+    "src/**/*"
   ],
-  "exclude": [
-    "node_modules",
-    "server/**/*",
-    "electron/**/*",
-    "client/vite.config.ts"
-  ]
 }

@@ -15,10 +15,6 @@ wheels/
 .venv
 .env
 
-# Generated files
-*.js
-*.js.map
-
 # Application logs and saved data
 /logs
 /saved

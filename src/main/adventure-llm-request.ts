@@ -2,12 +2,10 @@ import { LLMClient } from "./llm-client";
 import { EventEmitter } from "stream";
 import * as yaml from 'js-yaml';
 import { logger } from "./logger";
-import { AdventureImageUpdate, AdventurePhaseConfig, AdventureScene, AdventureState, AdventureTurnInfo, AdventureUserInput, TurnValidationResult } from './adventure-types';
+import { AdventurePhaseConfig, AdventureState, AdventureTurnInfo, AdventureUserInput, TurnValidationResult } from './adventure-types';
 import { MemoryGraphUpdate } from "./mcp-client";
-import { Entity, MemoryChunk } from "./memory-graph";
 import dotenv from 'dotenv';
 import { z } from "zod";
-import { on } from "events";
 
 const NEW_ADVENTURE_PROMPT_PATH = "prompts/new-adventure-prompt.txt";
 const SUMMARY_PROMPT_PATH = "prompts/summarize-prompt.txt";

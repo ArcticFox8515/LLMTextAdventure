@@ -3,13 +3,13 @@ import * as path from 'path';
 import * as isDev from 'electron-is-dev';
 import { spawn, ChildProcess } from 'child_process';
 import { WebSocket, WebSocketServer } from 'ws';
-import { LLMClient } from '../../server/llm-client';
-import { MCPClient } from '../../server/mcp-client';
-import { Adventure, loadStoryParameters } from '../../server/adventure';
-import { ImageGenerator } from '../../server/image-provider';
-import { logger } from '../../server/logger';
-import { AdventureImageUpdate, AdventureTurnInfo } from '../../server/adventure-types';
-import { getTurnNarrative } from '../../server/adventure-llm-request';
+import { LLMClient } from './llm-client';
+import { MCPClient } from './mcp-client';
+import { Adventure, loadStoryParameters } from './adventure';
+import { ImageGenerator } from './image-provider';
+import { logger } from './logger';
+import { AdventureImageUpdate, AdventureTurnInfo } from './adventure-types';
+import { getTurnNarrative } from './adventure-llm-request';
 import fs from 'fs';
 import dotenv from 'dotenv';
 
@@ -224,7 +224,7 @@ class ElectronApp {
         preload: path.join(__dirname, '../preload/preload.js'),
       },
     });
-    this.mainWindow.loadURL(`file://${path.join(__dirname, '../../../renderer/index.html')}`);
+    this.mainWindow.loadURL(`file://${path.join(__dirname, '../renderer/index.html')}`);
 
     this.mainWindow.on('closed', () => {
       this.mainWindow = null;
