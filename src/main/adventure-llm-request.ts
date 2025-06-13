@@ -129,7 +129,7 @@ class AdventureLLMPhase {
                 this.llmClient.addMessage({
                     role: "user",
                     content: yaml.dump({
-                        error: "Wrong output format. The message was discarded. Re-generate the response. Don't perform reasoning or write free-form text, output only the response.",
+                        error: "Incorrect output format. The message was discarded. Reflect on what went wrong and try again. Pay extra attention to the output format.",
                         errorDetails: result.errors,
                     })
                 });
@@ -437,7 +437,7 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
             retryCount: 5,
             llmParameters: {
                 llmModel: OPENROUTER_MODEL_ASSISTANT!,
-                maxTokens: 3000,
+                maxTokens: 4000,
                 stopSequence: "",
                 jsonOutput: true,
                 schema: null,
@@ -478,10 +478,10 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
         if (response.feedback) {
             const narrativeWordCount = getTurnNarrative(this.adventureState.getLastTurn(), false).split(/\s+/).length;
             let criticFeedback = `Feedback: Narrative word count ${narrativeWordCount}`;
-            if (narrativeWordCount < 500) {
-                criticFeedback += ` CRITICAL: Narrative didn't reach the minimum word count. Next turn should overcompensate for this.\n`;
-            } else if (narrativeWordCount < 600) {
-                criticFeedback += ` Narrative length is dangerously low. Try writing more next time.\n`;
+            if (narrativeWordCount < 400) {
+                criticFeedback += ` CRITICAL: Narrative word count is very low. Next turn should overcompensate for this.\n`;
+            } else if (narrativeWordCount < 450) {
+                criticFeedback += ` Narrative length is a bit low. Try writing more next time.\n`;
             } else {
                 criticFeedback += ` Narrative length is good. Keep it up!\n`;
             }
@@ -560,13 +560,13 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
             result.errors.push("Error generating background image: " + error);
         }
         try {
-            const playerPrompt = this.adventureState.makeImageUpdate("player", response.playerPortraitPrompt + ", located in " + settingPrompt, "character");
+            const playerPrompt = this.adventureState.makeImageUpdate("player", response.playerPortraitPrompt, "character");
             this.adventureState.updateImage(playerPrompt);
         } catch (error) {
             result.errors.push("Error generating player image: " + error);
         }
         try {
-            const illustrationPrompt = this.adventureState.makeImageUpdate("illustration", response.illustrationPrompt + ", located in " + settingPrompt, response.illustrationType);
+            const illustrationPrompt = this.adventureState.makeImageUpdate("illustration", response.illustrationPrompt, response.illustrationType);
             this.adventureState.updateImage(illustrationPrompt);
         } catch (error) {
             result.errors.push("Error generating illustration image: " + error);

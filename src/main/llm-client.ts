@@ -183,6 +183,7 @@ export class LLMClient {
                 (fullQuery as any).reasoning = {
                     effort: params.reasoning,
                     exclude: false,
+                    maxTokens: 1000,
                 }
             }
             try {
@@ -191,11 +192,12 @@ export class LLMClient {
                 let fullResponse: OpenAI.ChatCompletionAssistantMessageParam = {
                     role: "assistant",
                 }
+                let fullResponseReasoning = "";
                 finishReason = null;
                 let isReasoning = false;
                 for await (const chunk of stream) {
                     // logger.info(JSON.stringify(chunk, null, 2));
-                    const delta : any | undefined = chunk.choices[0]?.delta;
+                    const delta: any | undefined = chunk.choices[0]?.delta;
                     if (chunk.choices[0]?.finish_reason) {
                         finishReason = chunk.choices[0].finish_reason;
                     }
@@ -217,6 +219,7 @@ export class LLMClient {
                             logger.info("<think>");
                             isReasoning = true;
                         }
+                        fullResponseReasoning += delta.reasoning;
                         logger.incremental(delta.reasoning);
                     }
 
@@ -244,7 +247,15 @@ export class LLMClient {
                 }
                 logger.incremental("\n");
                 fullResponse.tool_calls = toolCalls.length > 0 ? toolCalls : undefined;
-                this.messages.push(fullResponse);
+                if (fullResponseReasoning.length > 0) {
+                    this.messages.push({
+                        role: "assistant",
+                        content: "<think>" + fullResponseReasoning + "</think>",
+                    });
+                }
+                if (fullResponse.content && fullResponse.content.length > 0) {
+                    this.messages.push(fullResponse);
+                }
                 logger.info("Added message:", JSON.stringify(this.messages.at(-1), null, 2));
                 logger.info("Finish reason:", finishReason);
 

@@ -91,6 +91,7 @@ export interface StoryStartingParameters {
     authorStyle: string;
     firstInput: string;
     narrativeInstructions: string;
+    assistantInstructions?: string;
     imageInstructions: string;
     plotPlan?: string;
     entities: Entity[];
@@ -128,6 +129,7 @@ export class AdventureState {
         this.parameters["AUTHOR_STYLE"] = parameters.authorStyle;
         this.parameters["FIRST_INPUT"] = parameters.firstInput;
         this.parameters["NARRATIVE_INSTRUCTIONS"] = parameters.narrativeInstructions;
+        this.parameters["ASSISTANT_INSTRUCTIONS"] = parameters.assistantInstructions || " ";
         this.parameters["IMAGE_PROMPT_INSTRUCTIONS"] = parameters.imageInstructions;
         this.parameters["PLOT_PLAN"] = parameters.plotPlan || "";
         this.importantEntities = parameters.importantEntities;
