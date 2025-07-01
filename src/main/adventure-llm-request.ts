@@ -6,6 +6,8 @@ import { AdventurePhaseConfig, AdventureState, AdventureTurnInfo, AdventureUserI
 import { MemoryGraphUpdate } from "./mcp-client";
 import dotenv from 'dotenv';
 import { z } from "zod";
+import { randomInt } from "crypto";
+import { log } from "console";
 
 const NEW_ADVENTURE_PROMPT_PATH = "prompts/new-adventure-prompt.txt";
 const SUMMARY_PROMPT_PATH = "prompts/summarize-prompt.txt";
@@ -14,6 +16,7 @@ const MEMORY_FETCH_PROMPT_PATH = "prompts/memory-fetch-prompt.txt";
 const MEMORY_FETCH_RESULT_PROMPT_PATH = "prompts/memory-fetch-result-prompt.txt";
 const ANALYZE_PROMPT_PATH = "prompts/analyze-prompt.txt";
 const NARRATIVE_PROMPT_PATH = "prompts/narrative-prompt.txt";
+const NARRATIVE_REFINE_PROMPT_PATH = "prompts/narrative-refine-prompt.txt";
 const ASSISTANT_PROMPT_PATH = "prompts/assistant-prompt.txt";
 const CRITIC_PROMPT_PATH = "prompts/critic-prompt.txt";
 
@@ -68,6 +71,43 @@ export function getTurnNarrative(turn: AdventureTurnInfo, isPartial: boolean): s
         return findResponsePartialSection(turn.fullWriterResponse || "", "narrative") || "";
     }
     return findXMLSection(turn.fullWriterResponse || "", "narrative", new TurnValidationResult()) || "";
+}
+
+// function skillRollsToString(skillRolls: number[] | undefined, adventureState: AdventureState): string {
+//     if (!skillRolls || skillRolls.length === 0) {
+//         return "skillRolls: none";
+//     }
+//     let dcNames = ["none", "Easy", "Normal", "Hard", "Very Hard", "Impossible"];
+//     let rollsText = "skillRolls:\n";
+//     for (let i = 0; i < skillRolls.length; i++) {
+//         const skill = adventureState.skills[i];
+//         var passedDC = 0;
+//         for (let j = 0; j < skill.checks.length; j++) {
+//             if (skillRolls[i] >= skill.checks[j]) {
+//                 passedDC = j + 1;
+//             }
+//         }
+//         rollsText += `- ${skill.name}: ${dcNames[passedDC] || "None"} or less\n`;
+//     }
+//     return rollsText;
+// }
+
+function fetchRecentTurnNarratives(adventureState: AdventureState, firstTurn: number, lastTurnInclusive: number): string {
+    let recentTurns = adventureState.getRecentTurns(firstTurn, lastTurnInclusive);
+    let recentTurnsText = "";
+    for (const turn of recentTurns) {
+        recentTurnsText += `\n--Turn ${turn.turnNumber}:\n`;
+        if (turn.userInput) {
+            recentTurnsText += `>${yaml.dump(turn.userInput, { lineWidth: -1 })}\n`;
+        }
+        recentTurnsText += getTurnNarrative(turn, false);
+        recentTurnsText += "\nNotes:\n"
+        recentTurnsText += findXMLSection(turn.fullWriterResponse, "notes", new TurnValidationResult()) || "";
+        if (turn.feedback) {
+            recentTurnsText += `Player feedback: ${yaml.dump(turn.feedback, { lineWidth: -1 })}\n`;
+        }
+    }
+    return recentTurnsText;
 }
 
 function cleanJSONResponse(response: string): string {
@@ -169,7 +209,7 @@ class AdventureLLMPhase {
 }
 
 interface MemoryFetchResult {
-    entities: string[];
+    skillCheck: string;
     search: string[];
 }
 
@@ -210,19 +250,39 @@ class AdventureLLMPhaseMemoryFetch extends AdventureLLMPhase {
         });
     }
 
+    private performSkillCheck(skillName: string, difficulty: string, adventureState: AdventureState): boolean {
+        const skillInfo = this.adventureState.skills.find(skill => skill.name.toLowerCase() === skillName.toLowerCase());
+        const dcNames = ["Very easy", "Easy", "Normal", "Hard", "Very Hard", "Nearly Impossible"];
+        let dcIndex = dcNames.indexOf(difficulty);
+        let skillSuccess = true;
+        if (dcIndex > 0 && skillInfo) {
+            const skillRoll = Math.floor(Math.random() * skillInfo.dice + skillInfo.currentValue);
+            logger.info(`Skill check for ${skillName} with DC ${dcNames[dcIndex]}: rolled ${skillRoll}, required ${skillInfo.checks[dcIndex]}`);
+            skillSuccess = skillRoll >= skillInfo.checks[dcIndex];
+        }
+        return skillSuccess;
+    }
+
     public async parsePhaseResult(): Promise<TurnValidationResult> {
         const result = new TurnValidationResult();
         const response = JSON.parse(cleanJSONResponse(this.accumulatedResponse)) as MemoryFetchResult;
-        for (const entityId of response.entities) {
-            if (this.adventureState.memoryGraph.entities[entityId.trim()]) {
-                this.adventureState.addFetchedEntity(entityId.trim());
-            } else {
-                result.errors.push(`Invalid entity id '${entityId}'`);
-            }
+        if (!response.skillCheck) {
+            result.errors.push("No skill check provided");
         }
         if (response.search.length === 0) {
             result.errors.push("No search terms provided");
         }
+        const skillCheckMatch = response.skillCheck.split(",").map((s) => s.trim());
+        if (skillCheckMatch.length !== 2) {
+            result.errors.push("Invalid skill check format. Expected 'Skill, DC'");
+        }
+        if (result.isFailed()) {
+            return result;
+        }
+        const [skillName, difficulty] = skillCheckMatch!;
+        const skillCheckResult = this.performSkillCheck(skillName, difficulty, this.adventureState);
+        this.adventureState.getLastTurn().skillCheck = `${skillName}, ${difficulty}: ${skillCheckResult ? "SUCCESS" : "FAILURE"}`;
+
         const ENTITY_RESULT_COUNT = 5;
         let foundEntities = await this.adventureState.getEntitiesMemoryStore().searchMultiple(response.search, ENTITY_RESULT_COUNT, Object.keys(this.adventureState.fetchedEntities));
         for (const entity of foundEntities) {
@@ -302,7 +362,7 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
             llmParameters: {
                 llmModel: OPENROUTER_MODEL_NARRATIVE!,
                 maxTokens: 4000,
-                stopSequence: "</response>",
+                stopSequence: null,
                 jsonOutput: false,
                 schema: null,
                 reasoning: null,
@@ -330,7 +390,7 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
                 this.llmClient.addMessage({
                     role: "user",
                     name: "Player",
-                    content: `## Turn ${turn.turnNumber} start\nPlayer input:\n${yaml.dump(turn.userInput, { lineWidth: -1 })}`,
+                    content: `## Turn ${turn.turnNumber} start\nPlayer input:\n${yaml.dump(turn.userInput, { lineWidth: -1 })}\nSkill check: ${turn.skillCheck || ""}`,
                 });
             }
             if (turn.turnNumber === 0) {
@@ -362,10 +422,11 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
                 });
             }
         }
+        let turn = this.adventureState.getLastTurn();
         this.llmClient.addMessage({
             role: "user",
             name: "Player",
-            content: yaml.dump(this.adventureState.getLastTurn().userInput, { lineWidth: -1 }),
+            content: `## Turn ${turn.turnNumber} start\nPlayer input:\n${yaml.dump(turn.userInput, { lineWidth: -1 })}\nSkill check: ${turn.skillCheck || ""}`,
         });
     }
 
@@ -398,20 +459,6 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
         if (getTurnNarrative(this.adventureState.getLastTurn(), true).length > 0) {
             onTurnUpdated();
         }
-    }
-
-    protected findResponsePartialSection(response: string, sectionName: string): string | null {
-        const fullSection = findXMLSection(response, sectionName, new TurnValidationResult());
-        if (fullSection) {
-            return fullSection;
-        }
-        const startTag = `<${sectionName}>`;
-        const startIndex = response.indexOf(startTag);
-        if (startIndex !== -1) {
-            const endSectionIndex = response.indexOf("<", startIndex + startTag.length);
-            return response.substring(startIndex + startTag.length, endSectionIndex !== -1 ? endSectionIndex : undefined);
-        }
-        return null;
     }
 }
 
@@ -449,16 +496,12 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
 
     protected praparePhase() {
         this.llmClient.clearMessageHistory();
-        const savedRecentTurns = this.adventureState.parameters["RECENT_TURNS"];
-        this.adventureState.parameters["RECENT_TURNS"] = " ";
         this.llmClient.addMessage({
             role: "user",
             name: "Deverloper",
             content: this.adventureState.resolvePrompt(HISTORY_PROMPT_PATH),
         });
-        this.adventureState.parameters["RECENT_TURNS"] = savedRecentTurns;
 
-        
         const turn = this.adventureState.getLastTurn();
         this.llmClient.addMessage({
             role: "user",
@@ -477,14 +520,7 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
         const response = JSON.parse(cleanJSONResponse(this.accumulatedResponse)) as LLMResponseMemoryUpdate;
         if (response.feedback) {
             const narrativeWordCount = getTurnNarrative(this.adventureState.getLastTurn(), false).split(/\s+/).length;
-            let criticFeedback = `Feedback: Narrative word count ${narrativeWordCount}`;
-            if (narrativeWordCount < 400) {
-                criticFeedback += ` CRITICAL: Narrative word count is very low. Next turn should overcompensate for this.\n`;
-            } else if (narrativeWordCount < 450) {
-                criticFeedback += ` Narrative length is a bit low. Try writing more next time.\n`;
-            } else {
-                criticFeedback += ` Narrative length is good. Keep it up!\n`;
-            }
+            let criticFeedback = `Feedback: Narrative word count ${narrativeWordCount}\n`;
             this.adventureState.getLastTurn().criticFeedback = criticFeedback + response.feedback;
         }
         if (response.newEntities) {
@@ -577,9 +613,7 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
 
 interface LLMResponseSummary {
     summary: string;
-    analysis: string;
     plotPlan: string;
-    userProfile: string;
 }
 
 class AdventureLLMPhaseSummary extends AdventureLLMPhase {
@@ -620,15 +654,12 @@ class AdventureLLMPhaseSummary extends AdventureLLMPhase {
         if (!response.plotPlan) {
             result.errors.push("Plot plan is missing");
         }
-        if (!response.userProfile) {
-            result.errors.push("User profile is missing");
-        }
         if (result.isFailed()) {
             return result;
         }
         this.adventureState.parameters["PLOT_PLAN"] = response.plotPlan;
-        this.adventureState.parameters["USER_PROFILE"] = response.userProfile;
-        this.adventureState.parameters["SUMMARY_ANALYSIS"] = response.analysis;
+        //this.adventureState.parameters["USER_PROFILE"] = response.userProfile;
+        //this.adventureState.parameters["SUMMARY_ANALYSIS"] = response.analysis;
         logger.info("Summary:", response.summary);
         const summary = this.adventureState.getParameterOrDefault("STORY_ARCHIVE", "") + response.summary;
         this.adventureState.parameters["STORY_ARCHIVE"] = summary;
@@ -698,34 +729,14 @@ export class AdventureLLMRequest {
         return this.adventureState.getRecentTurns(firstTurn, lastTurnInclusive);
     }
 
-    private fetchRecentTurnNarratives(firstTurn: number, lastTurnInclusive: number): string {
-        let recentTurns = this.getRecentTurns(firstTurn, lastTurnInclusive);
-        let recentTurnsText = "";
-        for (const turn of recentTurns) {
-            recentTurnsText += `\n--Turn ${turn.turnNumber}:\n`;
-            if (turn.userInput) {
-                recentTurnsText += `>${yaml.dump(turn.userInput, { lineWidth: -1 })}\n`;
-            }
-            recentTurnsText += getTurnNarrative(turn, false);
-            recentTurnsText += "\nNotes:\n"
-            recentTurnsText += findXMLSection(turn.fullWriterResponse, "notes", new TurnValidationResult()) || "";
-            if (turn.feedback) {
-                recentTurnsText += `Player feedback: ${yaml.dump(turn.feedback, { lineWidth: -1 })}\n`;
-            }
-        }
-        return recentTurnsText;
-    }
-
     public async performTurn(userInput: AdventureUserInput): Promise<TurnValidationResult> {
         logger.info("\n\n--- Starting new turn with message:\n", yaml.dump(userInput));
         const adventureStateBackup = this.adventureState.serialize();
-        const firstUnarchivedTurn = this.adventureState.turns.length - TURNS_TO_KEEP;
-        const firstHistoryTurn = this.adventureState.turns.length - TURNS_TO_KEEP_IN_HISTORY;
+        const firstHistoryTurn = this.adventureState.turns.length - TURNS_TO_KEEP;
         const lastHistoryTurn = this.adventureState.turns.length - 1;
-        logger.info(`Turns in first prompt: ${firstUnarchivedTurn}-${firstHistoryTurn - 1}`);
         logger.info(`Turns in history: ${firstHistoryTurn}-${lastHistoryTurn}`);
 
-        for (let i = 0; i < firstUnarchivedTurn; i++) {
+        for (let i = 0; i < firstHistoryTurn; i++) {
             if (!this.adventureState.getNarrativeMemoryStore().isTurnKnown(i)) {
                 let narrative = getTurnNarrative(this.adventureState.turns[i], false);
                 this.adventureState.getNarrativeMemoryStore().upsertNarrative(i, narrative);
@@ -742,11 +753,11 @@ export class AdventureLLMRequest {
             illustrationType: "",
         });
         this.eventEmitter.emit("turn-updated", this.adventureState.getLastTurn());
-        this.adventureState.parameters["RECENT_TURNS"] = this.fetchRecentTurnNarratives(firstUnarchivedTurn, firstHistoryTurn - 1);
         this.adventureState.parameters["TURN_NUMBER"] = turnNumber.toString();
         this.adventureState.parameters["REFMAP"] = Object.values(this.adventureState.memoryGraph.entities).map((e) => `${e.id} → ${e.name}${e.brief ? ", " + e.brief : ""}`).join("\n");
         this.adventureState.parameters["EXISTING_ENTITY_IDS"] = Object.keys(this.adventureState.memoryGraph.entities).join(",");
         this.adventureState.parameters["SEARCHED_RESULTS"] = "";
+        this.adventureState.parameters["SKILL_LIST"] = this.adventureState.getSkillListDescription();
         this.updateFetchedEntities(false); // TODO: fetch all entities if the turn is a new adventure
         // if (!await this.runPhase(AdventurePhase.Init, {})) {
         //     return;
@@ -757,6 +768,7 @@ export class AdventureLLMRequest {
         phases.push(...[
             new AdventureLLMPhaseMemoryFetch(this.llmClient, this.adventureState),
             new AdventureLLMPhaseNarrative(this.llmClient, this.adventureState),
+            // new AdventureLLMPhaseNarrativeRefine(this.llmClient, this.adventureState),
             new AdventureLLMPhaseMemoryUpdate(this.llmClient, this.adventureState),
         ])
 
@@ -776,7 +788,7 @@ export class AdventureLLMRequest {
                 name: "History Provider",
                 content: this.adventureState.resolvePrompt(HISTORY_PROMPT_PATH),
             });
-            this.adventureState.parameters["TURNS_TO_SUMMARIZE"] = this.fetchRecentTurnNarratives(this.adventureState.lastSummarizedTurn + 1, this.adventureState.turns.length - 1);
+            this.adventureState.parameters["TURNS_TO_SUMMARIZE"] = fetchRecentTurnNarratives(this.adventureState, this.adventureState.lastSummarizedTurn + 1, this.adventureState.turns.length - 1);
             await this.runPhase(new AdventureLLMPhaseSummary(this.llmClient, this.adventureState));
             delete this.adventureState.parameters["TURNS_TO_SUMMARIZE"];
             this.llmClient.clearMessageHistory();
@@ -788,7 +800,6 @@ export class AdventureLLMRequest {
             await this.adventureState.deserialize(adventureStateBackup);
             this.eventEmitter.emit("turn-updated", this.adventureState.getLastTurn());
         }
-        delete this.adventureState.parameters["RECENT_TURNS"];
         delete this.adventureState.parameters["FETCHED_ENTITIES"];
         delete this.adventureState.parameters["REFMAP"];
         delete this.adventureState.parameters["SEARCHED_RESULTS"];

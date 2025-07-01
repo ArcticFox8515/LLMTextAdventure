@@ -41,8 +41,7 @@ Here is refmap. It contains all existing entities in the novel. They don't need 
 </refmap>
 
 ### 2.1 Add new entities to memory
--Assess what named entities (characters, items, locations, etc) were mentioned this turn, but missing from the refmap. Ignore unnamed or unimportant entities like generic background characters.
--Use writer notes in <notes> section for extra information.
+-Assess what named entities (characters, items, locations, etc) were mentioned this turn, but missing from the refmap. Ignore unnamed or unimportant entities like generic background characters or ordinary items.
 -For every new introduced entity create an entry with following fields:
   - id
   - name: full entity name
@@ -74,9 +73,10 @@ Follow image prompt instructions to generate three prompts for image generator -
 - Last backgroundPrompt was: "{{PREVIOUS_BACKGROUND_PROMPT}}". If it matches current scene, just re-write it word-by-word.
 
 ### 3.2 Describe illustration and player portrait
--Decide what should be the illustration to current scene (usually the character in spotlight). Shouldn't be the player, as player has their own image prompt.
+-Decide what what to focus on in the current scene besides the player (usually the character in spotlight). This will be the illustration.
 -Set "illustrationType" accordingly - "character" if it's a character, otherwise other type like location/item/other.
 -For both "player" and illustration entity fill out image prompts: "illustrationPrompt" and "playerPortraitPrompt".
+-Illustration MUST NOT be player!
 -Last playerPortraitPrompt was: "{{PREVIOUS_PLAYER_PROMPT}}". Carefully examine it - if it completely matches player's current state (clothes, pose, tags, background, etc) re-write it word-by-word.
 
 ## Output Format

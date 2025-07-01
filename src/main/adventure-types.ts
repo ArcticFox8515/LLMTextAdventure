@@ -64,6 +64,7 @@ export interface AdventureTurnInfo {
     images: AdventureImageUpdate[];
     feedback?: AdventureTurnFeedback;
     criticFeedback?: string;
+    skillCheck?: string;
 }
 
 
@@ -85,8 +86,21 @@ export interface ImagePromptParameters {
     itemsNegativePrompt: string;
 }
 
+export interface SkillStartingParameters {
+    name: string;
+    description: string;
+    baseValue: number;
+    dice: number;
+    checks: number[];
+}
+
+export interface SkillParameters extends SkillStartingParameters {
+    currentValue: number;
+}
+
 export interface StoryStartingParameters {
     backstory: string;
+    backstoryNodes: string;
     novelInstructions: string;
     authorStyle: string;
     firstInput: string;
@@ -97,6 +111,7 @@ export interface StoryStartingParameters {
     entities: Entity[];
     importantEntities: string[];
     imageParameters: ImagePromptParameters;
+    skills: SkillStartingParameters[];
 }
 
 export class AdventureState {
@@ -107,6 +122,7 @@ export class AdventureState {
     public imagePromptParameters: ImagePromptParameters;
     public memoryGraph: MemoryGraph = new MemoryGraph();
     public fetchedEntities: Record<string, number> = {};
+    public skills: SkillParameters[] = [];
 
     private entitiesMemoryStore: MemoryVectorStore = new MemoryVectorStore();
     private narrativeMemoryStore: MemoryVectorStore = new MemoryVectorStore();
@@ -125,6 +141,7 @@ export class AdventureState {
 
     public async initAdventure(parameters: StoryStartingParameters) {
         this.parameters["BACKSTORY"] = parameters.backstory;
+        this.parameters["BACKSTORY_NOTES"] = parameters.backstoryNodes;
         this.parameters["NOVEL_INSTRUCTIONS"] = parameters.novelInstructions;
         this.parameters["AUTHOR_STYLE"] = parameters.authorStyle;
         this.parameters["FIRST_INPUT"] = parameters.firstInput;
@@ -133,6 +150,10 @@ export class AdventureState {
         this.parameters["IMAGE_PROMPT_INSTRUCTIONS"] = parameters.imageInstructions;
         this.parameters["PLOT_PLAN"] = parameters.plotPlan || "";
         this.importantEntities = parameters.importantEntities;
+        this.skills = parameters.skills.map(skill => ({
+            ...skill,
+            currentValue: skill.baseValue,
+        }));
         const memoryGraphUpdate: MemoryGraphUpdate = {};
         for (const entity of parameters.entities) {
             memoryGraphUpdate[entity.id] = entity;
@@ -147,7 +168,7 @@ export class AdventureState {
         this.turns = [
             {
                 turnNumber: 0,
-                fullWriterResponse: `<response><narrative>${parameters.backstory}</narrative></response>`,
+                fullWriterResponse: `<response><narrative>${parameters.backstory}</narrative><notes>${parameters.backstoryNodes}</notes></response>`,
                 suggestedActions: "",
                 illustrationType: "",
                 images: [],
@@ -172,6 +193,7 @@ export class AdventureState {
             imagePromptParameters: this.imagePromptParameters,
             memoryGraph: this.memoryGraph,
             fetchedEntities: this.fetchedEntities,
+            skills: this.skills,
         });
     }
 
@@ -189,6 +211,7 @@ export class AdventureState {
         if (loadedState.imagePromptParameters) this.imagePromptParameters = loadedState.imagePromptParameters;
         if (loadedState.memoryGraph) this.memoryGraph = loadedState.memoryGraph;
         if (loadedState.fetchedEntities) this.fetchedEntities = loadedState.fetchedEntities;
+        if (loadedState.skills) this.skills = loadedState.skills;
 
         for (const entity of Object.values(this.memoryGraph.entities)) {
             await this.entitiesMemoryStore.upsertEntity(entity);
@@ -222,8 +245,11 @@ export class AdventureState {
         systemPrompt = systemPrompt.replace(/{{(.*?)}}/g, (match, parameterName) => {
             if (this.parameters[parameterName]) {
                 return this.parameters[parameterName];
+            }
+            else if (this.memoryGraph.entities[match]) {
+                return this.memoryGraph.entities[match].name;
             } else {
-                return match; // Leave the placeholder as is if no replacement is found
+                return "";
             }
         });
         return systemPrompt;
@@ -299,5 +325,11 @@ export class AdventureState {
             }
         }
         return resentTurns;
+    }
+
+    public getSkillListDescription(): string {
+        return this.skills.map(skill => {
+            return `- ${skill.name}: ${skill.description}`;
+        }).join("\n");
     }
 }

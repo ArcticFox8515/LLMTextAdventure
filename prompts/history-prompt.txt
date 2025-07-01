@@ -1,11 +1,7 @@
 ## Long-term plan and user profile made by AI agent. Use for story planning.
 
-<plot_plan>
+### Plot plan
 {{PLOT_PLAN}}
-</plot_plan>
-<user_profile>
-{{USER_PROFILE}}
-</user_profile>
 
 ## Saved info
 
@@ -19,9 +15,5 @@
 ## Story progression so far
 --- From here on player sees everything written. Keep the narrative consistent with the story progression.
 
-<story_arhcive>
+### Story archive
 {{STORY_ARCHIVE}}
-</story_arhcive>
-<recent_turns>
-{{RECENT_TURNS}}
-</recent_turns>

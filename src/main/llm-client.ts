@@ -154,14 +154,16 @@ export class LLMClient {
                 messages: this.messages,
                 stream: true,
                 max_tokens: params.maxTokens,
+                temperature: 0.6,
                 stop: (params.stopSequence && params.stopSequence.length > 0) ? [params.stopSequence] : undefined,
             };
             (fullQuery as any).provider = {
                 sort: "price",
-                require_parameters: true,
+                require_parameters: false,
                 order: [
                     "google-vertex/europe",
                     "google-vertex",
+                    "deepinfra/fp4",
                 ]
             };
             if (params.schema) {
