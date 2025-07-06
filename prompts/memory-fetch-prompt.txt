@@ -13,19 +13,19 @@ Decide what skill check to perform for the player action. You have following ski
 {{SKILL_LIST}}
 Select the most suitable skill to check. If action is a direct speech, assume the action to be the intent of the speech. If action is empty, not in-character or invalid, assume player character doesn't act and select skill most suited for inaction.
 Then, select difficulty class. Use one of standard D&D difficulty classes:
-1. Very easy
-2. Easy
-3. Normal
-4. Hard
-5. Very Hard
-6. Nearly impossible
+1. Very Easy: Tasks that could go wrong only under stress or distraction. Climbing a ladder with rungs, remembering your own name, or noticing something obvious like a dragon in an empty room. Most people succeed automatically under normal conditions.
+2. Easy: Routine tasks for someone with basic competence. Climbing a rope, remembering common knowledge, spotting something in plain sight, or convincing someone of something they already lean toward believing.
+3. Normal: Tasks requiring training, talent, or focused effort. Picking a standard lock, tracking in normal terrain, recalling specialized knowledge, or persuading someone neutral to help you.
+4. Hard: Tasks requiring expertise or exceptional effort. Scaling a sheer cliff, picking a complex lock, tracking over stone, recalling obscure lore, or convincing someone opposed to change their mind.
+5. Very Hard: Tasks at the edge of mortal capability. Climbing an overhanging cliff in rain, bypassing magical security, tracking days-old traces, remembering lost historical details, or turning an enemy into an ally through words alone.
+6. Nearly impossible: Tasks requiring near-superhuman ability. Feats that push beyond normal mortal limits, like climbing a glass wall, defeating legendary magical protections, or convincing someone to act completely against their core beliefs and interests.
 Write it as "Skill, DC" in the answer.
 
 **3. Search the history**
 - The system keeps in history all previous turns. However, it shows only few recent ones by default.
-- In "search" section write a few search queries that would describe context of current turn.
-- Queries will be processed by FAISS similarity search engine to fetch text from history and entity info.
-- Each line is a separate query. Try make queries concise, for similarity search to work the best.
+- In "search" section write a few topics to searh that would describe context of current turn.
+- Topics will be processed by FAISS similarity search engine to fetch text from history and entity info.
+- Each line is a separate topic. Try make topics are concise, but descriptive enough for FAISS to work.
 - Pay attention to player's last action, as player may often refer to events missing from recent history, so it's important to fetch the required context.
 
 Examples of good search queries:
@@ -49,8 +49,8 @@ Player action: "I ask Sarah about the missing villagers"
 {
     "skillCheck": "Skill, DC",
     "search": [
-        "query 1",
-        "query 2"
+        "topic 1",
+        "topic 2"
     ]
 }
 ```

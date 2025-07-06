@@ -4,6 +4,7 @@ import * as yaml from 'js-yaml';
 import { Entity, MemoryVectorStore } from "./memory-graph";
 import OpenAI from 'openai';
 import { ZodType } from 'zod';
+import { logger } from "./logger";
 
 export class TurnValidationResult {
     public errors: string[] = [];
@@ -242,16 +243,24 @@ export class AdventureState {
     public resolvePrompt(promptPath: string) {
         let systemPrompt = fs.readFileSync(promptPath, "utf-8");
 
-        systemPrompt = systemPrompt.replace(/{{(.*?)}}/g, (match, parameterName) => {
-            if (this.parameters[parameterName]) {
-                return this.parameters[parameterName];
+        while (true) {
+            let hadReplacements = false;
+            systemPrompt = systemPrompt.replace(/{{(.*?)}}/g, (match, parameterName) => {
+                hadReplacements = true;
+                if (this.parameters[parameterName]) {
+                    return this.parameters[parameterName];
+                }
+                else if (this.memoryGraph.entities[parameterName]) {
+                    return this.memoryGraph.entities[parameterName].name;
+                } else {
+                    return "";
+                }
+            });
+            if (!hadReplacements) {
+                break;
             }
-            else if (this.memoryGraph.entities[match]) {
-                return this.memoryGraph.entities[match].name;
-            } else {
-                return "";
-            }
-        });
+        }
+
         return systemPrompt;
     }
 
@@ -290,7 +299,7 @@ export class AdventureState {
         }
         const MAX_FETCHED_ENTITIES = 20;
         const MIN_ENTITY_AGE_TO_DELETE = 2;
-        
+
         this.fetchedEntities[entityId] = this.getLastTurn().turnNumber;
         while (this.fetchedEntities.size > MAX_FETCHED_ENTITIES) {
             const oldestEntityId = Object.keys(this.fetchedEntities).reduce((oldest, current) => {

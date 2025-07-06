@@ -1,0 +1,198 @@
+backstory: |
+  In the realm between realms, floating within the Chaos Ocean, you were Archmage Thaelon of Netheril—keeper of knowledge and one of the few mortals to have transcended the Great Barrier. Your purpose was simple: preserve accumulated wisdom across the multiverse's endless cycles of creation and destruction. For centuries, you observed developing realms with detached interest, particularly Lumina where a nascent World Will showed signs of eventual awakening—a phenomenon that could affect Netheril's operations if it developed unpredictably.
+  Your scholarly routine was interrupted by a familiar voice cutting through the dimensional void—Elysara, Minor Goddess of Light from Lumina. You had encountered her before during your monitoring duties, though your relationship remained professional rather than personal.
+  "Thaelon," her voice carried divine authority tinged with concern, "I require assistance. Dimensional refugees have arrived in Lumina—an entire demon race fleeing their collapsed homeworld. They're claiming territory through conquest, following their survival-based customs."
+  You paused your research into chaos patterns. Realm collapses and refugee movements were natural cycles, hardly worth intervention. But Lumina's developing World Will made this situation potentially significant. "The scale?"
+  "They don't understand our concepts of law and peace. Their culture respects only strength, and they're establishing clan territories by force. Small conflicts are escalating toward something that could destabilize the entire realm."
+  The implications became clear. Large-scale warfare in Lumina could trigger premature World Will awakening—an event that might disrupt dimensional stability far beyond this single realm. Your scholarly detachment wavered as you recognized genuine cosmic risk.
+  "My fellow gods debate intervention," Elysara continued, "but direct divine action risks the very stability we're trying to preserve. We need someone who can match demon strength while working toward sustainable solutions."
+  "And you chose me despite from all options?" you asked.
+  "You're reliable, powerful enough to handle the situation, and your neutrality might actually help—you can work with both sides without favoring either."
+  Together, you devised a practical solution. Using a portion of Elysara's divine essence, you forged the Divine Blade of Elysara—a weapon that could channel significant power into Lumina without disturbing the developing World Will. The blade would be your primary tool while your vast magical knowledge remained dormant to preserve dimensional stability.
+  "The mortals of Lumina will see a mysterious swordsman with a divine weapon," Elysara explained as the blade took shape. "They won't recognize your true nature or question your methods too deeply. Lumina has always known heroes blessed by gods."
+  You examined the completed blade, feeling its precise energy regulation and divine resonance. "And the demons will respect demonstrated strength rather than diplomatic words they don't value."
+  "Precisely. The summoning circle is ready—though I should warn you, the local mages who drew it aren't particularly skilled. They work from divine revelations rather than true understanding."
+  As reality shifted around you, preparing for the journey to Lumina, Elysara added final context: "Remember, I cannot directly guide you once you arrive. Divine manifestation risks destabilizing what we're trying to protect. You'll need to assess the situation independently and choose your own approach."
+  You nodded, understanding the parameters. This wasn't about imposing a predetermined solution—it was about preventing a natural refugee crisis from escalating into something that could threaten dimensional stability. How you accomplished that would be entirely your decision.
+
+
+novelInstructions: |
+  ## Setup
+  This is a bright fantasy adventure in the medieval realm of Lumina. Demon refugees from a collapsed world have arrived and are establishing territories through force, creating tension with local inhabitants. The player is Thaelon, appearing as a mysterious swordsman with a divine blade, but actually an immortal archmage operating under magical restrictions to prevent dimensional instability.
+
+  ## Player Rules
+  Physical capabilities: Superhuman strength, speed, near-indestructible body, and enhanced senses
+  Primary tool: Divine Blade of Elysara for magical effects and combat
+  No active spellcasting beyond the blade's abilities
+  Unknown identity - locals see a divine warrior, not an archmage, the real identity is irrelevant
+  Complete freedom to choose approach, alignment, and methods
+
+  ## Story Planning
+  Prioritize episodic adventures over linear progression. Create interesting locations, colorful NPCs, and self-contained scenarios that can connect to larger themes. The demon situation provides background context, not urgent deadlines. Focus on discovery, relationship building, and personal agency rather than prescribed objectives.
+  
+  ## Target Experience:
+  Create a classic isekai adventure emphasizing wonder, empowerment, and exploration. Players should feel capable and free to experiment with different approaches. Maintain an optimistic tone where problems have solutions and conflicts can be resolved through creativity and effort. Balance power fantasy with meaningful choices and character development opportunities.
+
+  ## Storytelling instructions
+  1. Progress the story slowly, keep in mind that current turn is a part of a longer story. The more you tell now, the less will be left for the future turns.
+  2. Write bright and optimistic story, focus on exploration rather than survival.
+  3. Mind the pacing. Limit to one action per character per turn; and one event as an outcome. Respect player agency. When it's time for player character to act - finish the narrative so the player can perform an action on their own.
+  4. Challenges and complications should reinforce the adventure, not interfere with it.
+
+  ## Writing dialogues
+  When writing dialogues, consider following traits of the character:
+  1. Personality - if they're inroverted of extraverted, rational or emotional, talkative or silent.
+  2. Background and social standing - what's their upringing, their education level, their profession.
+  3. Knowledge scope - what they know and don't know about, what topics they actively raise and what topics avoid.
+  4. Mental state - if they're calm or agitated, happy or sad.
+  For example, an emotional person with no education would openly talk about feelings and emotions, but will pass on magic theory, they may be more street-smart than smart. Or, a merchant may be knowledgeable about the trade, but know little about the life of adventurers.
+  Even cliche characters like guards may have different backgrounds - a former adventurer, a street urchin, a noble bastard, a talented peasant - and their knowledge scope and speech change accordingly.
+
+authorStyle: A writer of classic isekai with talent for character writing
+
+
+assistantInstructions: |
+  When adding new characters, always write down their personality, background and knowledge scope as they're described in "Writing dialogues" section.
+
+firstInput: |
+  The circle is drawn by the citizens of this world guided by Elysara's providence somewhere far away from the future frontlines, and it's drawn poorly. I materialize inside a summoning circle, but- upside-down and fall on my face. The divine blade falls on me with a loud smack.
+
+narrativeInstructions: ""
+
+skills:
+  - name: Constitution
+    description:  Use for actions requiring endurance and strength
+    baseValue: 99
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Dexterity
+    description:  Use for actions requiring agility and finesse
+    baseValue: 20
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Intelligence
+    description:  Use for knowledge, lore and magic-related actions
+    baseValue: 99
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Wisdom
+    description:  Use for actions require common sense, intuition and perception
+    baseValue: 20
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Charisma
+    description: Use for conversation-focused actions like persuasion attempts
+    baseValue: 10
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+
+
+entities: 
+  - id: player
+    name: Thaelon
+    type: character
+    appearance: male Norse archmage with glowing blue eyes, pale skin, and flowing silver-white hair to his shoulders with intricate runic tattoos visible on his face and hands
+    clothes: ornate midnight-blue robes with silver embroidery depicting celestial patterns, a high collar, and a heavy cloak fastened with an arcane sigil
+    info: |
+      A tall, male figure with ageless features and eyes that shimmer with arcane energy. His silver-white hair flows down to his shoulders, and intricate runes are tattooed across his visible skin. Though physically appearing to be in his prime, there's an ancient weariness to his movements and a detached curiosity in his gaze that betrays his millennia of existence.
+
+      Thaelonis a True Neutral Netheril Archmage who has transcended the Great Barrier, making him one of the most powerful mortals in existence. His primary concern is knowledge preservation rather than moral causes. He maintains scholarly detachment toward natural cycles of creation and destruction, intervening only when situations threaten massive knowledge loss or dimensional stability.
+      Thaelon monitors Lumina because its developing World Will could affect dimensional stability if it awakens unpredictably. He views this as academic interest rather than emotional investment—similar to studying a potentially active volcano.
+
+  - id: elysara
+    name: Elysara
+    type: character
+    appearance: female goddess, with radiant golden eyes and blonde hair
+    clothes: elegant white dress with golden embroidery
+    info: |
+      is Lumina's Minor Goddess of Light (both physical illumination and metaphorical enlightenment), with Lawful Good alignment. She genuinely cares about peace, harmony, and protecting her realm's inhabitants. Large-scale conflicts contradict her nature as a force of order and illumination.
+      
+      Thaelon and Elysara are professional acquaintances rather than friends. They've interacted during his monitoring duties, developing mutual respect despite philosophical differences. Elysara values law and peace while Thaelon maintains neutrality toward outcomes.
+      When the demon refugee crisis threatened to escalate beyond divine subtle influence, Elysara chose to contact Thaelon despite their different alignments. She recognized that his neutrality might actually help—he could work with both sides based on practical effectiveness rather than moral preference.
+      Their collaboration produced the Divine Blade of Elysara, allowing Thaelon to operate in Lumina with significant power while respecting dimensional stability constraints. Elysara cannot provide direct guidance once he arrives, leaving all decisions to his judgment.
+
+  - id: universeLore
+    name: "Universe: Chaos Ocean and Realms"
+    type: lore
+    info: |
+      The multiverse consists primarily of the Chaos Ocean—an infinite expanse of unknown substance in perpetual self-transformation that follows no consistent rules. Opposite to chaos are souls: eternal, orderly entities that float through the Chaos Ocean after death until reincarnating in new realms.
+      Souls possess "will"—the ability to affect chaos and alter its behavior. When large numbers of souls cluster together, their collective will gradually shapes surrounding chaos into stability, creating realms with consistent Laws. These realms are islands of order within the chaotic sea.
+      The Laws are the fundamental rules governing each realm—physics, magic, causality. Every realm has different Laws, and their strength determines realm stability. When Laws change significantly, it causes realm-wide cataclysms that can destroy the realm entirely, regressing it back to pure chaos. This cycle of creation and destruction is natural and eternal.
+
+  - id: godsLore
+    name: "Gods: True and Minor"
+    type: lore
+    info: |
+      True Gods are Laws that have gained consciousness and self-awareness. They have no souls and exist as living natural phenomena. True Gods are conceptually immortal but can "fall into oblivion" by abandoning consciousness and regressing to unconscious Laws.
+      The birth of a True God is typically cataclysmic because it represents fundamental changes to a realm's Laws. These events can reshape entire worlds and affect neighboring dimensional regions.
+      Minor Gods are souls that have merged with one or more Laws, gaining absolute power over their domain but losing the ability to use magic—accumulating Mana would disturb their Law structure. They are powerful but constrained by their nature.
+      In Lumina, Minor Gods cannot manifest physically without risking dimensional stability. They influence the world through subtle methods: guiding mortals through dreams and inspiration, sending divine revelations, granting blessings, and occasionally empowering heroes for critical situations.
+
+  - id: netheril
+    name: "Netheril: The Knowledge Keepers"
+    type: lore
+    info: |
+      Netheril was once an ancient empire in a long-gone realm, now evolved into an organization of powerful mages dedicated to knowledge preservation. They believe death is merely a transition since souls are immortal, but consider lost knowledge the true tragedy when civilizations fall.
+      Netheril mages live between realms in the Chaos Ocean, maintaining philosophical neutrality toward natural cycles of creation and destruction. They don't prevent realm collapses or interfere with natural order unless situations threaten massive knowledge loss or dimensional stability.
+      Each Netheril mage develops their own philosophy and moral alignment. They agree only on knowledge preservation as their core mission. Some are benevolent scholars, others cold researchers, and a few pursue darker studies—but all value accumulated wisdom above other concerns.
+      Netheril monitors developing realms, particularly those showing signs of True God awakening, as these events can affect dimensional stability and potentially threaten their operations.
+
+  - id: lumina
+    name: "Lumina: The Developing Realm"
+    type: lore
+    info: |
+      Lumina is a medieval fantasy world inhabited by humans, elves, dwarves, and other typical fantasy races. Technology remains primitive—swords, bows, basic agriculture, and simple crafts. Most inhabitants live in small settlements with occasional larger cities governing surrounding territories.
+      The realm's magical understanding is extremely limited. Local "mages" can perform simple charms, minor blessings, and basic rituals that barely affect reality. What they consider "powerful magic" would be elementary exercises elsewhere. Most magical knowledge comes through divine revelation rather than systematic study.
+      Culturally, Lumina's inhabitants are proud of their traditions and confident in their worldview despite limited cosmic awareness. They understand their immediate environment well but have no concept of other realms, dimensional travel, or cosmic forces. Small conflicts over resources and religious differences are common, though usually resolved without major warfare.
+      Lumina possesses a semi-conscious World Will with potential to awaken as a True God. This process would fundamentally alter the realm's Laws and potentially affect dimensional stability far beyond Lumina itself.
+
+  - id: demonRace
+    name: "Demon Race: The Barbaric Refugees"
+    type: lore
+    info: |
+      The demons are refugees from a collapsed realm where only the strongest could survive in an extremely hostile environment. Their culture developed around "might makes right" principles—strength determines leadership, resource allocation, and social status.
+      They organize into clans led by the most powerful warriors. Demons respect demonstrated strength above all else and view negotiation without proving superior power as weakness or deception. Their approach to problems is direct and physical rather than diplomatic or subtle.
+      Having fled through unstable dimensional rifts, demons arrived in Lumina with no understanding of local customs or peaceful coexistence concepts. They apply their survival-based methods to claim territory, following the only social systems they know.
+      Demons are not inherently evil—they're survivors using methods that worked in their harsh homeworld. However, their aggressive territorial expansion threatens to destabilize Lumina's existing balance and could escalate into realm-wide conflict.
+
+  - id: magicLore
+    name: "Magic: Theory and Practice"
+    type: lore
+    info: |
+      Magic involves using soul will to bend the Laws governing reality. Since individual souls are too weak to visibly affect stable realms, mages gather Arcane Energies (unstable chaos lumps), purify them into Mana (organized chaos shaped by will), store this Mana without degradation, then use it to temporarily "corrode" reality and alter local Laws.
+      Magic Ranks (9 levels, 3 tiers):
+      Apprentice Tier (Ranks 1-3): World-dependent learning
+
+      Rank 1: Learning to purify Arcane Energies into Mana
+      Rank 2: Manipulating shaped Mana effectively
+      Rank 3: Storing large amounts of Mana reliably
+
+      Mage Tier (Ranks 4-6): Transcendent capabilities
+
+      Requires breaking the Small Barrier—natural magical capacity limit
+      Involves controlled magical collapse, compressing power qualitatively
+      Enables realm travel, immortality, and reality manipulation
+      Creates world-independent "Arcane Core" for autonomous mana processing
+
+      Archmage Tier (Ranks 7-9): Cosmic mastery
+
+      Requires breaking the Great Barrier where power quantity/quality plateau
+      Demands creating personal concept of magic and harnessing universal laws
+      Soul becomes powerful enough to bend Laws directly without Mana
+      Abilities normally exclusive to gods
+
+      Most beings across all realms cannot surpass the Small Barrier. Lumina's strongest mages barely reach Rank 2, making them novices by cosmic standards.
+    
+importantEntities:
+  - player
+
+imageInstructions: ""
+
+imageParameters:
+  model: "RealVisXL_V5.0_fp16.safetensors"
+  characterStartPrompt: "masterpiece, best quality, portrait of "
+  characterEndPrompt: ", fantasy, photorealistic, ultra-detailed, 8k"
+  characterNegativePrompt: "worst quality, lowres, extra limbs, off-model"
+  itemsStartPrompt: "masterpiece, best quality,"
+  itemsEndPrompt: ", fantasy, illustration, ultra-detailed, 8k"
+  itemsNegativePrompt: "worst quality, lowres, extra limbs, off-model"

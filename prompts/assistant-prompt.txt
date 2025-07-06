@@ -20,9 +20,8 @@ Keep your reasoning brief.
 -Mix of different languages
 -Contradiction with "novel_instructions"
 -Scene repeats events from previous turns and/or has any retcons
--Player character performs actions the user didn't instruct them to
--Player is put into reactive position - where they can only react to exiting events, not actively choosing the gameplay.
--Introduced characters weren't described
+-Appearance of introduced characters weren't described
+-Sudden change of scene, sudden appearance of disappearance of characters
 
 When noticing any of "red flags", make a very clear negative feedback, so writer won't repeat these mistakes.
 
@@ -31,7 +30,7 @@ When noticing any of "red flags", make a very clear negative feedback, so writer
 -Scene location is ambiguous from narrative
 -Style suddenly changes
 -Suggested actions don't provide meaningful gameplay choices
--There is no risk/reward balance, player is overpowered or doesn't have anything to aim for
+-There is no risk/reward balance, player is overwhelmed or doesn't have anything to aim for
 
 ### 2. Add and update entities
 

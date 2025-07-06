@@ -283,7 +283,7 @@ class AdventureLLMPhaseMemoryFetch extends AdventureLLMPhase {
         const skillCheckResult = this.performSkillCheck(skillName, difficulty, this.adventureState);
         this.adventureState.getLastTurn().skillCheck = `${skillName}, ${difficulty}: ${skillCheckResult ? "SUCCESS" : "FAILURE"}`;
 
-        const ENTITY_RESULT_COUNT = 5;
+        const ENTITY_RESULT_COUNT = 15;
         let foundEntities = await this.adventureState.getEntitiesMemoryStore().searchMultiple(response.search, ENTITY_RESULT_COUNT, Object.keys(this.adventureState.fetchedEntities));
         for (const entity of foundEntities) {
             this.adventureState.addFetchedEntity(entity.chunkId);
