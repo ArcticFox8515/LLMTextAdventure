@@ -1,7 +1,7 @@
 ## Long-term plan and user profile made by AI agent. Use for story planning.
 
 ### Plot plan
-{{PLOT_PLAN}}
+{{PLOT_PLAN_MISSING}}
 
 ## Saved info
 

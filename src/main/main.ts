@@ -14,6 +14,8 @@ import fs from 'fs';
 import dotenv from 'dotenv';
 
 dotenv.config();
+    
+const STORY_PARAMETERS_PATH = process.env.STORY_PARAMETERS_PATH || "prompts/story/story-parameters.yaml";
 
 class ElectronApp {
   private mainWindow: BrowserWindow | null = null;
@@ -50,7 +52,7 @@ class ElectronApp {
     // Initialize backend components
     await this.mcpClient.start();
     this.llmClient = new LLMClient(OPENROUTER_API_KEY, OPENROUTER_API_URL, this.mcpClient);
-    this.adventure = new Adventure(this.llmClient);
+    this.adventure = new Adventure(this.llmClient, STORY_PARAMETERS_PATH);
 
     // Set up adventure event handlers
     this.adventure.onLLMStartStop((isRunning) => {
@@ -127,8 +129,7 @@ class ElectronApp {
 
   private async startNewAdventure(): Promise<void> {
     if (!this.adventure) return;
-    
-    const STORY_PARAMETERS_PATH = "prompts/story/story-parameters.yaml";
+  
     const parameters = loadStoryParameters(STORY_PARAMETERS_PATH);
     if (parameters) {
       await this.adventure.startAdventure(parameters);

@@ -341,4 +341,8 @@ export class AdventureState {
             return `- ${skill.name}: ${skill.description}`;
         }).join("\n");
     }
+
+    public getPlayerInputMessage(turn: AdventureTurnInfo): string {
+        return `## Turn ${turn.turnNumber} start\nPlayer input:\n${yaml.dump(turn.userInput, { lineWidth: -1 })}\nSkill check: ${turn.skillCheck || "none"}`;
+    }
 }

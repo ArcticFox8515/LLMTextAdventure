@@ -161,9 +161,10 @@ export class LLMClient {
                 sort: "price",
                 require_parameters: false,
                 order: [
+                    "parasail/fp8",
+                    "deepinfra/fp4",
                     "google-vertex/europe",
                     "google-vertex",
-                    "deepinfra/fp4",
                 ]
             };
             if (params.schema) {

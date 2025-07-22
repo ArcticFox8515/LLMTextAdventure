@@ -5,6 +5,7 @@ import * as yaml from 'js-yaml';
 import { LLMClient } from "./llm-client";
 import { AdventureImageUpdate, AdventureState, AdventureTurnFeedback, AdventureTurnInfo, AdventureUserInput, ImagePromptParameters, StoryStartingParameters } from "./adventure-types";
 import { AdventureLLMRequest } from "./adventure-llm-request";
+import path from "path";
 
 export function loadStoryParameters(filePath: string): StoryStartingParameters | null {
     try {
@@ -20,6 +21,7 @@ export function loadStoryParameters(filePath: string): StoryStartingParameters |
 export class Adventure {
     // Transient fields
     private llmClient: LLMClient;
+    private storyParametersPath: string; 
     private llmRunning: boolean = false;
     private backgroundImagePreChanged = false;
     private static readonly MAX_SAVE_FILES = 4; // Number of save files to keep
@@ -30,14 +32,18 @@ export class Adventure {
     // Saved fields
     private state: AdventureState;
 
-    constructor(llmClient: LLMClient) {
+    constructor(llmClient: LLMClient, storyParametersPath: string) {
         this.llmClient = llmClient;
+        this.storyParametersPath = storyParametersPath;
         this.state = new AdventureState();
     }
 
     public async start() {
-        if (fs.existsSync("saved/adventure-state.yaml")) {
-            await this.state.deserialize(fs.readFileSync("saved/adventure-state.yaml", "utf-8"));
+        const basePath = this.getSaveDir();
+        const saveFile = `${basePath}/adventure-state.yaml`;
+
+        if (fs.existsSync(saveFile)) {
+            await this.state.deserialize(fs.readFileSync(saveFile, "utf-8"));
         }
     }
 
@@ -135,8 +141,14 @@ export class Adventure {
         return this.state.turns.length > 0 ? this.state.turns[this.state.turns.length - 1] : { turnNumber: 0, fullWriterResponse: "", suggestedActions: "", images: [], illustrationType: "" };
     }
 
-    private saveState() {
+    private getSaveDir(): string {
         const basePath = "saved";
+        const storyDir = path.basename(this.storyParametersPath);
+        return path.join(basePath, storyDir);
+    }
+
+    private saveState() {
+        const basePath = this.getSaveDir();
         const baseFilename = "adventure-state";
         const extension = ".yaml";
         const mainFile = `${basePath}/${baseFilename}${extension}`;

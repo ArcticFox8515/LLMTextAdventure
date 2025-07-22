@@ -17,6 +17,7 @@ const MEMORY_FETCH_RESULT_PROMPT_PATH = "prompts/memory-fetch-result-prompt.txt"
 const ANALYZE_PROMPT_PATH = "prompts/analyze-prompt.txt";
 const NARRATIVE_PROMPT_PATH = "prompts/narrative-prompt.txt";
 const NARRATIVE_REFINE_PROMPT_PATH = "prompts/narrative-refine-prompt.txt";
+const NARRATIVE_PROMPT_FOOTER_PATH = "prompts/narrative-prompt-footer.txt";
 const ASSISTANT_PROMPT_PATH = "prompts/assistant-prompt.txt";
 const CRITIC_PROMPT_PATH = "prompts/critic-prompt.txt";
 
@@ -30,8 +31,7 @@ const OPENROUTER_MODEL_MEMORY_FETCH = process.env.OPENROUTER_MODEL_MEMORY_FETCH 
 const OPENROUTER_MODEL_NARRATIVE = process.env.OPENROUTER_MODEL_NARRATIVE || OPENROUTER_MODEL;
 const OPENROUTER_MODEL_ASSISTANT = process.env.OPENROUTER_MODEL_ASSISTANT || OPENROUTER_MODEL;
 
-const TURNS_TO_KEEP = 8;
-const TURNS_TO_KEEP_IN_HISTORY = 4;
+const TURNS_TO_KEEP_IN_HISTORY = 8;
 const TURNS_TO_SUMMARIZE = 5;
 
 
@@ -390,7 +390,7 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
                 this.llmClient.addMessage({
                     role: "user",
                     name: "Player",
-                    content: `## Turn ${turn.turnNumber} start\nPlayer input:\n${yaml.dump(turn.userInput, { lineWidth: -1 })}\nSkill check: ${turn.skillCheck || ""}`,
+                    content: this.adventureState.getPlayerInputMessage(turn),
                 });
             }
             if (turn.turnNumber === 0) {
@@ -426,7 +426,12 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
         this.llmClient.addMessage({
             role: "user",
             name: "Player",
-            content: `## Turn ${turn.turnNumber} start\nPlayer input:\n${yaml.dump(turn.userInput, { lineWidth: -1 })}\nSkill check: ${turn.skillCheck || ""}`,
+            content: this.adventureState.getPlayerInputMessage(turn),
+        });
+        this.llmClient.addMessage({
+            role: "user",
+            name: "Developer",
+            content: this.adventureState.resolvePrompt(NARRATIVE_PROMPT_FOOTER_PATH),
         });
     }
 
@@ -463,7 +468,6 @@ class AdventureLLMPhaseNarrative extends AdventureLLMPhase {
 }
 
 interface LLMResponseMemoryUpdate {
-    feedback: string;
     newEntities: MemoryGraphUpdate;
     updates: MemoryGraphUpdate;
     backgroundPrompt: string;
@@ -506,7 +510,7 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
         this.llmClient.addMessage({
             role: "user",
             name: "Player",
-            content: `## Turn ${turn.turnNumber} start\nPlayer input:\n${yaml.dump(turn.userInput, { lineWidth: -1 })}`,
+            content: this.adventureState.getPlayerInputMessage(turn),
         });
         this.llmClient.addMessage({
             role: "user",
@@ -518,11 +522,6 @@ class AdventureLLMPhaseMemoryUpdate extends AdventureLLMPhase {
     public async parsePhaseResult(): Promise<TurnValidationResult> {
         const result = new TurnValidationResult();
         const response = JSON.parse(cleanJSONResponse(this.accumulatedResponse)) as LLMResponseMemoryUpdate;
-        if (response.feedback) {
-            const narrativeWordCount = getTurnNarrative(this.adventureState.getLastTurn(), false).split(/\s+/).length;
-            let criticFeedback = `Feedback: Narrative word count ${narrativeWordCount}\n`;
-            this.adventureState.getLastTurn().criticFeedback = criticFeedback + response.feedback;
-        }
         if (response.newEntities) {
             const existingNewEntities = Object.keys(response.newEntities).filter((key) => this.adventureState.memoryGraph.entities[key]);
             if (existingNewEntities.length > 0) {
@@ -668,6 +667,9 @@ class AdventureLLMPhaseSummary extends AdventureLLMPhase {
     }
 }
 
+interface LLMResponseCritic {
+    issues: string[];
+}
 
 class AdventureLLMPhaseCritic extends AdventureLLMPhase {
 
@@ -676,13 +678,13 @@ class AdventureLLMPhaseCritic extends AdventureLLMPhase {
             agentName: "Critic Agent",
             prompts: [CRITIC_PROMPT_PATH],
             prefill: "",
-            saveMessageToHistory: true,
-            retryCount: 2,
+            saveMessageToHistory: false,
+            retryCount: 5,
             llmParameters: {
-                llmModel: OPENROUTER_MODEL!,
-                maxTokens: 1500,
+                llmModel: OPENROUTER_MODEL_ASSISTANT!,
+                maxTokens: 4000,
                 stopSequence: "",
-                jsonOutput: false,
+                jsonOutput: true,
                 schema: null,
                 reasoning: null,
             }
@@ -691,22 +693,53 @@ class AdventureLLMPhaseCritic extends AdventureLLMPhase {
     }
 
     protected praparePhase() {
+        this.llmClient.clearMessageHistory();
         this.llmClient.addMessage({
             role: "user",
-            name: "Developer",
-            content: `## Write the short feedback on the current turn`,
+            name: "Deverloper",
+            content: this.adventureState.resolvePrompt(HISTORY_PROMPT_PATH),
+        });
+        this.llmClient.addMessage({
+            role: "user",
+            name: "Deverloper",
+            content: this.adventureState.resolvePrompt(MEMORY_FETCH_RESULT_PROMPT_PATH),
+        });
+        const firstHistoryTurn = this.adventureState.turns.length - 1 - TURNS_TO_KEEP_IN_HISTORY;
+        const lastHistoryTurn = this.adventureState.turns.length - 1;
+        for (const turn of this.adventureState.getRecentTurns(firstHistoryTurn, lastHistoryTurn)) {
+            if (turn.userInput) {
+                this.llmClient.addMessage({
+                    role: "user",
+                    name: "Player",
+                    content: this.adventureState.getPlayerInputMessage(turn),
+                });
+            }
+            this.llmClient.addMessage({
+                role: "user",
+                name: "Writer Agent",
+                content: "Writer response:\n" + getTurnNarrative(turn, false),
+            });
+        }
+        this.llmClient.addMessage({
+            role: "user",
+            content: "Now write the feedback for the last turn",
         });
     }
 
     public async parsePhaseResult(): Promise<TurnValidationResult> {
         const result = new TurnValidationResult();
-        const response = findXMLSection(this.accumulatedResponse, "response", result);
-        if (result.isFailed()) {
+        const response = JSON.parse(cleanJSONResponse(this.accumulatedResponse)) as LLMResponseCritic;
+        if (!response.issues) {
+            result.errors.push(`'issues' is missing`);
             return result;
         }
-        this.adventureState.getLastTurn().criticFeedback = response!;
+        
+        const narrativeWordCount = getTurnNarrative(this.adventureState.getLastTurn(), false).split(/\s+/).length;
+        let criticFeedback = `Feedback: Narrative word count ${narrativeWordCount}\n`;
+        this.adventureState.getLastTurn().criticFeedback = criticFeedback + response.issues.join("\n");
         return result;
     }
+
 }
 
 export class AdventureLLMRequest {
@@ -732,7 +765,7 @@ export class AdventureLLMRequest {
     public async performTurn(userInput: AdventureUserInput): Promise<TurnValidationResult> {
         logger.info("\n\n--- Starting new turn with message:\n", yaml.dump(userInput));
         const adventureStateBackup = this.adventureState.serialize();
-        const firstHistoryTurn = this.adventureState.turns.length - TURNS_TO_KEEP;
+        const firstHistoryTurn = this.adventureState.turns.length - TURNS_TO_KEEP_IN_HISTORY;
         const lastHistoryTurn = this.adventureState.turns.length - 1;
         logger.info(`Turns in history: ${firstHistoryTurn}-${lastHistoryTurn}`);
 
@@ -770,6 +803,7 @@ export class AdventureLLMRequest {
             new AdventureLLMPhaseNarrative(this.llmClient, this.adventureState),
             // new AdventureLLMPhaseNarrativeRefine(this.llmClient, this.adventureState),
             new AdventureLLMPhaseMemoryUpdate(this.llmClient, this.adventureState),
+            new AdventureLLMPhaseCritic(this.llmClient, this.adventureState),
         ])
 
         let result = new TurnValidationResult();

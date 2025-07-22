@@ -1,0 +1,4 @@
+Now write the turn.
+
+{{NARRATIVE_INSTRUCTIONS}}
+Write in style: {{AUTHOR_STYLE}}
