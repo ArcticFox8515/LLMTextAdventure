@@ -12,6 +12,33 @@ firstInput: |
 narrativeInstructions: |
   Briefly describe the immediate results of my action, without any preamble or reminding me of who my character is. Describe any dialogue in full. Describe the physical appearance of any newly introduced characters in detail. Remember that things may go well - or very badly - for my character. Please write your description over several paragraphs.
 
+skills:
+  - name: Constitution
+    description:  Use for actions requiring endurance and strength
+    baseValue: 10
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Dexterity
+    description:  Use for actions requiring agility and finesse
+    baseValue: 10
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Intelligence
+    description:  Use for knowledge, lore and magic-related actions
+    baseValue: 15
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Wisdom
+    description:  Use for actions require common sense, intuition and perception
+    baseValue: 10
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Charisma
+    description: Use for conversation-focused actions
+    baseValue: 15
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+
 entities: 
   - id: player
     name: Aeliana the Enchantress
@@ -28,18 +55,28 @@ importantEntities:
   - player
 
 imageInstructions: |
+  Ignore previous image prompt instructions.
   Prompts must be set of tags, not coherent sentences. Tags must consist of 1-2 words, write them as simple as possible.
-  For characters: ALWAYS start appearence_prompt with '1boy,' or '1girl,' tag.
-  DO NOT specify age or race in prompts. Use 'male/female' tag
-  instead. NO AGE.
-  For clothes: Describe only clearly visible items. Do not mention items hidden under clothes. Describe in very simple and basic terms - image generator has very limited understanding of magic accessories.
-  For scene setting: Keep it short, 2-3 tags, like "inn room, bright lighting, yellow walls".
+  For characters promopt MUST always be:
+    1. '1boy' or '1girl'
+    2. species and gender, e.g. "human female"
+    3. haircut and hair color, e.g. "straight blonde hair"
+    4. eye color, e.g. "blue eyes"
+    5. complexity, e.g. "lean body" or "atlethic body"
+    6. clothes
+    7. expression - happy/sad/flustered/blushing/crying, etc
+    8. pose - standing/sitting/lying; arms position; legs position, e.g. "standing, hands on own hips, legs apart"
+    9. location - one-sentence location to put in background like "fantasy inn room at night" or "lush forest at noon".
+  Example prompt start: "1girl, elf female, long messy silver hair, grey eyes, petite body, green elvish dress, smirking, standing, arms crossed, legs together, lush forest at noon"
+  For clothes: Describe only clearly visible items. Do not mention items hidden under clothes. Describe in very simple and basic terms - image generator has very limited understanding of magic accessories. Always add colors for clothes.
+  
+  IMPORTANT: Pay extra attention to location. All image prompts MUST end with location description.
 
 imageParameters:
-  model: "NoobAI-XL-Vpred-v1.0.safetensors"
-  characterStartPrompt: "myht,ebifurya,sunhyun, very awa, "
-  characterEndPrompt: ", solo, ((masterpiece, best quality, recent, newest, absurdres, highres))"
-  characterNegativePrompt: "nsfw, worst quality, worst aesthetic, bad quality, normal quality, average quality, oldest, old, early, very displeasing, displeasing"
-  itemsStartPrompt: "artist:, very awa, no characters,"
-  itemsEndPrompt: ",((masterpiece, best quality, recent, newest, absurdres, highres))"
-  itemsNegativePrompt: "1boy, 1girl, solo, worst quality, worst aesthetic, bad quality, normal quality, average quality, oldest, old, early, very displeasing, displeasing"
+  model: "waiNSFWIllustrious_v140.safetensors"
+  characterStartPrompt: "fantasy,general,"
+  characterEndPrompt: ", solo, masterpiece,best quality,amazing quality"
+  characterNegativePrompt: "text,multiple panels,bad quality,worst quality,worst detail,sketch,censor"
+  itemsStartPrompt: "fantasy,general,scenery,"
+  itemsEndPrompt: ", masterpiece,best quality,amazing quality"
+  itemsNegativePrompt: "1boy, 1girl, solo, male, female, bad quality,worst quality,worst detail,sketch,censor"

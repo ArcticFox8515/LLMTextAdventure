@@ -65,6 +65,35 @@ firstInput: |
 narrativeInstructions: |
   Briefly describe the immediate results of my action, without any preamble or reminding me of who my character is. Describe any dialogue in full. Describe the physical appearance of any newly introduced characters in detail. Remember that things may go well - or very badly - for my character. Please write your description over several paragraphs.
 
+  
+skills:
+  - name: Lore
+    description:  Use for actions requiring knowledge of the lore
+    baseValue: 100
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Intuition
+    description:  Use for actions that rely on guessing or sensing the Sea
+    baseValue: 100
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Leadership
+    description:  Use for actions primarily focused on leading the crew, unless they require Lore or Intuition.
+    baseValue: 15
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Physique
+    description:  Use for physical actions that require strength, dexteriy or stamina
+    baseValue: 15
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+  - name: Persuasion
+    description: Use for negotiations with third parties - human or not
+    baseValue: 15
+    dice: 20
+    checks: [5, 10, 15, 20, 25, 30]
+
+
 entities: 
   - id: player
     name: Captain Merrick Blacktide
